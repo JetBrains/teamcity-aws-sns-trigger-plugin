@@ -20,7 +20,8 @@ import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerService;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
-import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.AwsSnsHttpEndpointHelper;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.AwsSnsMessageDetailsHelper;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.controllers.ActionErrors;
 import jetbrains.buildServer.controllers.AuthorizationInterceptor;
 import jetbrains.buildServer.http.HttpApi;
@@ -37,15 +38,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.AwsSnsHttpEndpointHelper.AWS_TOPIC_ARN_HEADER;
-import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL;
-import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL_PATTERN;
+import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.*;
 import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.getCustomDataStorage;
-import static jetbrains.buildServer.trigger.sns.SnsBuildTriggerService.*;
+import static jetbrains.buildServer.trigger.sns.SnsBuildTriggerService.TRIGGER_NAME;
 
 public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
   public static final String PATH = SNS_CONNECTION_CONTROLLER_URL;
-
   private final Pattern pathPattern = Pattern.compile(SNS_CONNECTION_CONTROLLER_URL_PATTERN);
   private final ProjectManager myProjectManager;
   private final HttpApi myServerApi;
@@ -107,8 +105,8 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
       final String finalTriggerUuid = triggerUuid.trim();
       BuildTriggerDescriptor buildTrigger = buildType.getBuildTriggersCollection().stream()
               .filter(btd -> btd.getType().equals(TRIGGER_NAME) &&
-                      btd.getProperties().get(TRIGGER_UUID_KEY) != null &&
-                      btd.getProperties().get(TRIGGER_UUID_KEY).equals(finalTriggerUuid))
+                      btd.getProperties().get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY) != null &&
+                      btd.getProperties().get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY).equals(finalTriggerUuid))
               .findFirst()
               .orElseThrow(() -> new AwsSnsHttpEndpointException("There are no suitable trigger in the build: " + finalBuildTypeId));
 
@@ -118,16 +116,16 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
         CustomDataStorage cds = getCustomDataStorage(buildType, buildTrigger);
         HashMap<String, Object> payload = readJson(request);
 
-        if (payload != null && AwsSnsHttpEndpointHelper.isValidSignature(payload)) {
-          if (AwsSnsHttpEndpointHelper.isSubscription(payload)) {
-            String arn = AwsSnsHttpEndpointHelper.subscribe(payload, myServerApi);
-            cds.putValue(TRIGGER_CURRENT_SUBSCRIPTION_ARN, arn);
-            cds.putValue(TRIGGER_CURRENT_TOPIC_ARN, request.getHeader(AWS_TOPIC_ARN_HEADER));
-          } else if (AwsSnsHttpEndpointHelper.isUnsubscribe(payload)) {
-            cds.putValue(TRIGGER_CURRENT_SUBSCRIPTION_ARN, null);
-          } else if (AwsSnsHttpEndpointHelper.isNotification(payload)) {
-            SnsNotificationDto dto = AwsSnsHttpEndpointHelper.convertToNotificaitonDto(request, payload);
-            String expectedArn = cds.getValue(TRIGGER_CURRENT_SUBSCRIPTION_ARN);
+        if (payload != null && AwsSnsMessageDetailsHelper.isValidSignature(payload, myServerApi)) {
+          if (AwsSnsMessageDetailsHelper.isSubscription(payload)) {
+            String arn = AwsSnsMessageDetailsHelper.subscribe(payload, myServerApi);
+            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, arn);
+            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN, request.getHeader(AWS_TOPIC_ARN_HEADER));
+          } else if (AwsSnsMessageDetailsHelper.isUnsubscribe(payload)) {
+            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, null);
+          } else if (AwsSnsMessageDetailsHelper.isNotification(payload)) {
+            SnsNotificationDto dto = AwsSnsMessageDetailsHelper.convertToNotificationDto(request, payload);
+            String expectedArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
             String currentArn = dto.getSubscriptionArn();
             String unsubscribeUrl = dto.getUnsubscribeUrl();
 
@@ -135,7 +133,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
               throw new AwsSnsHttpEndpointException("Trigger " + buildTrigger.getTriggerName() + " isn't subscribed to topic " + dto.getTopic());
             }
 
-            cds.putValue(TRIGGER_CURRENT_UNSUBSCRIBE_URL, unsubscribeUrl);
+            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL, unsubscribeUrl);
 
             BuildTriggerService bts = buildTrigger.getBuildTriggerService();
             if (bts instanceof SnsBuildTriggerService) {

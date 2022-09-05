@@ -20,6 +20,7 @@ plugins {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 }
 
 val tcVersion = ext.get("teamcityVersion")!! as String

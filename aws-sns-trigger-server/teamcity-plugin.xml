@@ -22,7 +22,7 @@
         <display-name>AWS STN Trigger</display-name>
         <version>@Plugin_Version@</version>
         <description>Enables build triggering via SNS notification</description>
-        <download-url>https://github.com/JetBrains/teamcity-aws-sns-trigger</download-url>
+        <download-url>https://github.com/JetBrains/teamcity-aws-sns-trigger-plugin</download-url>
         <vendor>
             <name>JetBrains</name>
             <url>https://www.jetbrains.com/</url>

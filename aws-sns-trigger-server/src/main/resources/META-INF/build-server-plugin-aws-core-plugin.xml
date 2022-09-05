@@ -5,6 +5,7 @@
        default-autowire="constructor">
 
     <!--    build trigger -->
+    <bean class="jetbrains.buildServer.trigger.controllers.AwsSnsHttpEndpointController"/>
     <bean class="jetbrains.buildServer.trigger.sns.AwsSnsTriggeringContext"/>
     <bean id="awsSnsTrigger" class="jetbrains.buildServer.trigger.sns.SnsBuildTriggerService"/>
 </beans>

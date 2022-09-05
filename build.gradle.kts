@@ -27,7 +27,7 @@ val correctVersion = project.hasProperty("versionNumber") && "\\d+\\.\\d+\\.\\d+
 val versionNumber =
     if (correctVersion) property("versionNumber") else "SNAPSHOT-" + SimpleDateFormat("yyyyMMddHHmmss").format(Date())
 val projectIds =
-    mapOf("group" to "teamcity-google-storage", "version" to versionNumber, "artifact" to "google-artifact-storage")
+    mapOf("group" to "teamcity-aws-sns-trigger-plugin", "version" to versionNumber, "artifact" to "aws-sns-trigger")
 val teamcityVersion = if (project.hasProperty("teamcityVersion")) property("teamcityVersion") else "2022.08"
 
 group = projectIds["group"]!!
@@ -59,7 +59,7 @@ subprojects {
 
     tasks {
         test {
-            useTestNG()
+            useJUnitPlatform()
         }
         jar {
             archiveVersion.set(null as String?)

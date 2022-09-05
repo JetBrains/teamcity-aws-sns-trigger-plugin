@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "teamcity-aws-sns-trigger"
+rootProject.name = "teamcity-aws-sns-trigger-plugin"
 include("aws-sns-trigger-agent")
 include("aws-sns-trigger-common")
 include("aws-sns-trigger-server")

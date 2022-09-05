@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static jetbrains.buildServer.trigger.sns.SnsBuildTriggerService.TRIGGER_IS_ACTIVE;
-import static jetbrains.buildServer.trigger.sns.SnsBuildTriggerService.TRIGGER_MESSAGES;
+import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE;
+import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES;
 
 public class AwsSnsBuildTriggerState {
 
@@ -47,12 +47,12 @@ public class AwsSnsBuildTriggerState {
   }
 
   public boolean hasNewNotifications() {
-    return myStorage.getValue(TRIGGER_MESSAGES) != null;
+      return myStorage.getValue(TRIGGER_STORE_MESSAGES) != null;
   }
 
   @NotNull
   public Map<String, SnsNotificationDto> getRegisteredMessages() {
-    String messagesMapAsString = myStorage.getValue(TRIGGER_MESSAGES);
+      String messagesMapAsString = myStorage.getValue(TRIGGER_STORE_MESSAGES);
 
     if (messagesMapAsString == null || messagesMapAsString.isEmpty()) {
       return Collections.emptyMap();
@@ -76,10 +76,10 @@ public class AwsSnsBuildTriggerState {
     }
 
     if (messages.isEmpty()) {
-      myStorage.putValue(TRIGGER_MESSAGES, null);
+        myStorage.putValue(TRIGGER_STORE_MESSAGES, null);
     } else {
       try {
-        myStorage.putValue(TRIGGER_MESSAGES, myObjectMapper.writeValueAsString(messages));
+          myStorage.putValue(TRIGGER_STORE_MESSAGES, myObjectMapper.writeValueAsString(messages));
       } catch (JsonProcessingException err) {
         myLogger.error("Something went terribly wrong. Try to recreate the trigger.", err);
         throw new IllegalStateException(err);
@@ -90,11 +90,11 @@ public class AwsSnsBuildTriggerState {
   }
 
   public void resetMessagesMap() {
-    myStorage.putValue(TRIGGER_MESSAGES, null);
+      myStorage.putValue(TRIGGER_STORE_MESSAGES, null);
   }
 
   public void setTriggerActive(@NotNull Boolean isActive) {
-    myStorage.putValue(TRIGGER_IS_ACTIVE, isActive.toString());
+      myStorage.putValue(TRIGGER_STORE_IS_ACTIVE, isActive.toString());
   }
 }
 

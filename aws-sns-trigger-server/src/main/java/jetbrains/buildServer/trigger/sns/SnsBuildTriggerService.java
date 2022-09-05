@@ -24,6 +24,7 @@ import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerService;
 import jetbrains.buildServer.buildTriggers.BuildTriggeringPolicy;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.SnsNotificationDto;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.serverSide.SBuildType;
@@ -36,21 +37,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL;
 import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.getCustomDataStorage;
 
 public class SnsBuildTriggerService extends BuildTriggerService {
   public static final String TRIGGER_NAME = "awsSnsTrigger";
-  public static final String TRIGGER_CURRENT_SUBSCRIPTION_ARN = "subscriptionArn";
-  public static final String TRIGGER_CURRENT_UNSUBSCRIBE_URL = "unsubscribeURL";
-  public static final String TRIGGER_CURRENT_TOPIC_ARN = "topicArn";
-  public static final String TRIGGER_MESSAGES = "messages";
-  public static final String TRIGGER_IS_ACTIVE = "triggerIsActive";
-  public static final String TRIGGER_UUID_KEY = "triggerUuid";
-  public static final String TRIGGER_BUILDTYPE_EXTERNAL_ID_KEY = "triggerBuildTypeExternalId";
-
   private static final String EDIT_PARAMS_URL = "editAwsSnsTrigger.jsp";
-
 
   private final String myEditParametersUrl;
   private final AwsSnsTriggeringContext myTriggeringContext;
@@ -85,19 +76,19 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     StringBuilder sb = new StringBuilder();
     Map<String, String> properties = trigger.getProperties();
 
-    String btExternalId = properties.get(TRIGGER_BUILDTYPE_EXTERNAL_ID_KEY);
+    String btExternalId = properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY);
     SBuildType buildType = myTriggeringContext.getProjectManager().findBuildTypeByExternalId(btExternalId);
 
-    sb.append("Trigger UUID: ").append(properties.get(TRIGGER_UUID_KEY));
+    sb.append("Trigger UUID: ").append(properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY));
     sb.append("\n");
     sb.append("Trigger URL: ")
             .append("\n")
-            .append(properties.get("triggerEndpointUrl"));
+            .append(properties.get(AwsSnsTriggerConstants.TRIGGER_ENDPOINT_URL_PROPERTY_KEY));
 
     if (buildType != null) {
       CustomDataStorage cds = getCustomDataStorage(buildType, trigger);
-      String topicArn = cds.getValue(TRIGGER_CURRENT_TOPIC_ARN);
-      String topicSubscriptionArn = cds.getValue(TRIGGER_CURRENT_SUBSCRIPTION_ARN);
+      String topicArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN);
+      String topicSubscriptionArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
 
       if (topicArn != null) {
         sb.append("\n")
@@ -135,8 +126,8 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   @Override
   public Map<String, String> getDefaultTriggerProperties() {
     Map<String, String> defaults = new HashMap<>();
-    defaults.put(TRIGGER_UUID_KEY, UUID.randomUUID().toString());
-    defaults.put("urlPathPart", SNS_CONNECTION_CONTROLLER_URL);
+    defaults.put(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, UUID.randomUUID().toString());
+    defaults.put("urlPathPart", AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL);
     defaults.put("rootUrl", myTriggeringContext.getMyWebLinks().getRootUrlByProjectExternalId(null));
     return defaults;
   }
@@ -158,9 +149,9 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   }
 
   public void registerMessage(@NotNull SnsNotificationDto notificationDto, @NotNull CustomDataStorage cds) throws JsonProcessingException {
-    if (!StringUtil.isTrue(cds.getValue(TRIGGER_IS_ACTIVE))) return;
+    if (!StringUtil.isTrue(cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE))) return;
 
-    String messagesMapAsString = cds.getValue(TRIGGER_MESSAGES);
+    String messagesMapAsString = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES);
 
     HashMap<String, SnsNotificationDto> messagesMap;
     if (messagesMapAsString == null) {
@@ -173,7 +164,7 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     messagesMap.put(notificationDto.getMessageId(), notificationDto);
     String updatedMessagesMapAsString = myObjectMapper.writeValueAsString(messagesMap);
 
-    cds.putValue(TRIGGER_MESSAGES, updatedMessagesMapAsString);
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, updatedMessagesMapAsString);
     cds.flush();
   }
 }
