@@ -146,7 +146,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
       // otherwise just ignore this message
     } catch (Exception error) {
       errors.addError("error_snsEndpointResolve", error.getMessage());
-      writeAsJson(errors, response, HttpServletResponse.SC_BAD_REQUEST);
+      writeErrorsAsJson(errors, response);
     }
 
     // this will return HTTP_CODE 200

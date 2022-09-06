@@ -41,7 +41,8 @@ import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.get
 
 public class SnsBuildTriggerService extends BuildTriggerService {
   public static final String TRIGGER_NAME = "awsSnsTrigger";
-  private static final String EDIT_PARAMS_URL = "editAwsSnsTrigger.jsp";
+  public static final String TRIGGER_PRETTY_NAME = "AWS SNS Trigger";
+  public static final String EDIT_PARAMS_URL = "editAwsSnsTrigger.jsp";
 
   private final String myEditParametersUrl;
   private final AwsSnsTriggeringContext myTriggeringContext;
@@ -67,7 +68,7 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   @NotNull
   @Override
   public String getDisplayName() {
-    return "AWS SNS Trigger";
+    return TRIGGER_PRETTY_NAME;
   }
 
   @NotNull

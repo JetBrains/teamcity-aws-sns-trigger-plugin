@@ -36,18 +36,14 @@ public abstract class BaseAwsConnectionController extends BaseController {
     super(server);
   }
 
-  protected <T> void writeAsJson(@NotNull T value, @NotNull HttpServletResponse response) throws IOException {
-    writeAsJson(value, response, HttpServletResponse.SC_OK);
-  }
-
-  protected <T> void writeAsJson(@NotNull T value, @NotNull HttpServletResponse response, int status) throws IOException {
-    final String json = OBJECT_MAPPER.writeValueAsString(value);
-    response.setContentType("application/json");
-    response.setCharacterEncoding(Charsets.UTF_8.name());
-    response.setStatus(status);
-    final PrintWriter writer = response.getWriter();
-    writer.write(json);
-    writer.flush();
+  protected <T> void writeErrorsAsJson(@NotNull T value, @NotNull HttpServletResponse response) throws IOException {
+      final String json = OBJECT_MAPPER.writeValueAsString(value);
+      response.setContentType("application/json");
+      response.setCharacterEncoding(Charsets.UTF_8.name());
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      final PrintWriter writer = response.getWriter();
+      writer.write(json);
+      writer.flush();
   }
 
   protected <T> T readJson(@NotNull HttpServletRequest request) throws IOException {

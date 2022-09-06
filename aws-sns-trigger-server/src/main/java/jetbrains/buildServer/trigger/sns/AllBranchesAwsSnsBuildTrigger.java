@@ -63,7 +63,6 @@ public class AllBranchesAwsSnsBuildTrigger extends PolledBuildTrigger {
     BuildPromotionEx buildPromotion = createBuildPromotion(context);
 
     TriggeredByBuilder builder = new TriggeredByBuilder();
-//    builder.addParameter(TriggeredByBuilder.VCS_NAME_PARAM_NAME, context.getBuildType().getVcsRootInstances().stream().findFirst().get().getVcsName());
     builder.addParameter(TriggeredByBuilder.TYPE_PARAM_NAME, "sns");
     builder.addParameter(TriggeredByBuilder.TRIGGER_ID_PARAM_NAME, context.getTriggerDescriptor().getId());
     builder.addParameter(BuildQueueImpl.TRIGGERED_BY_QUEUE_OPTIMIZATION_ENABLED_PARAM, "false");

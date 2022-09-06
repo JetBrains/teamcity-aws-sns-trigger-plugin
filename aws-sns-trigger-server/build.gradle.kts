@@ -34,6 +34,9 @@ dependencies {
     provided("org.jetbrains.teamcity.internal:server:$teamcityVersion")
 
     agent(project(path = ":aws-sns-trigger-agent", configuration = "plugin"))
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("io.mockk:mockk:1.12.7")
 }
 
 val projectIds = ext.get("projectIds")!! as Map<String, String>
