@@ -1,0 +1,9 @@
+<ConfirmSubscriptionResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+    <ConfirmSubscriptionResult>
+        <SubscriptionArn>arn:aws:sns:us-west-2:123456789012:MyTopic:2bcfbf39-05c3-41de-beaa-fcfcc21c8f55
+        </SubscriptionArn>
+    </ConfirmSubscriptionResult>
+    <ResponseMetadata>
+        <RequestId>075ecce8-8dac-11e1-bf80-f781d96e9307</RequestId>
+    </ResponseMetadata>
+</ConfirmSubscriptionResponse>
