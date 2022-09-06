@@ -1,10 +1,8 @@
 # TeamCity AWS SNS Trigger
 
 [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-
-[//]: # ([![plugin status]&#40;)
-
-[//]: # (https://teamcity.jetbrains.com/app/rest/builds/buildType:&#40;id:TeamCityPluginsByJetBrains_TeamcityGoogleStorage_Build&#41;/statusIcon.svg&#41;]&#40;https://teamcity.jetbrains.com/viewType.html?buildTypeId=TeamCityPluginsByJetBrains_TeamcityGoogleStorage_Build&guest=1&#41;)
+[![plugin status](
+https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:TeamCityPluginsByJetBrains_TeamcityAwsSnsTriggerPlugin_Build)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=TeamCityPluginsByJetBrains_TeamcityAwsSnsTriggerPlugin_Build&guest=1)
 
 This plugin enables new type of build trigger. Currently, plugin supports only HTTP(S) subscription type.
 
