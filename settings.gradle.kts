@@ -14,5 +14,4 @@
  * limitations under the License.
  */
 rootProject.name = "teamcity-aws-sns-trigger-plugin"
-include("aws-sns-trigger-common")
 include("aws-sns-trigger-server")

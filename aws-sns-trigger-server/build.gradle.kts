@@ -29,10 +29,9 @@ teamcity {
 }
 
 dependencies {
-    implementation(project(":aws-sns-trigger-common"))
-    implementation(kotlin("stdlib"))
     provided("org.jetbrains.teamcity.internal:server:$teamcityVersion")
 
+    testImplementation(kotlin("stdlib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     testImplementation("io.mockk:mockk:1.12.7")
 }
@@ -41,7 +40,9 @@ val projectIds = ext.get("projectIds")!! as Map<String, String>
 
 tasks {
     serverPlugin {
+        archiveVersion.convention(null as String?)
         archiveVersion.set(null as String?)
+        archiveBaseName.convention(projectIds["artifact"])
         archiveBaseName.set(projectIds["artifact"])
     }
     compileKotlin {

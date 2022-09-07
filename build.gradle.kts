@@ -30,9 +30,6 @@ val projectIds =
     mapOf("group" to "teamcity-aws-sns-trigger-plugin", "version" to versionNumber, "artifact" to "aws-sns-trigger")
 val teamcityVersion = if (project.hasProperty("teamcityVersion")) property("teamcityVersion") else "2022.08"
 
-group = projectIds["group"]!!
-version = projectIds["version"]!!
-
 allprojects {
     group = projectIds["group"]!!
     version = projectIds["version"]!!
@@ -62,6 +59,7 @@ subprojects {
             useJUnitPlatform()
         }
         jar {
+            archiveVersion.convention(null as String?)
             archiveVersion.set(null as String?)
         }
     }
