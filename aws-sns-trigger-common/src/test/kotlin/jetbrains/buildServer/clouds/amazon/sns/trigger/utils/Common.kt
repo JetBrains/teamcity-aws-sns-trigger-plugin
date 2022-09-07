@@ -1,7 +1,5 @@
 package jetbrains.buildServer.clouds.amazon.sns.trigger.utils
 
-import jetbrains.buildServer.http.HttpApi
-
 val accountId: String? = System.getenv("AWS_ACCOUNT_ID")
 
 val subscriptionPayload: Map<String, Any?> = mapOf(
@@ -29,34 +27,6 @@ val notificationPayload: Map<String, Any?> = mapOf(
     "UnsubscribeURL" to "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:$accountId:efimov_sns_test:2d2e43d0-dffb-4be8-9113-5fa2e9910ec6"
 )
 
-object HttpResponse {
-    var data: String = ""
-}
-
-val serverApiStub: HttpApi = object : HttpApi {
-    override fun get(uri: String, vararg headers: HttpApi.HeaderPair?): HttpApi.Response {
-        return object : HttpApi.Response {
-            override fun getStatusCode(): Int = 200
-
-            override fun getStatusText(): String = "OK"
-
-            override fun getBody(): String = HttpResponse.data
-
-            override fun getHeader(name: String): String = ""
-        }
-    }
-
-    override fun post(
-        uri: String,
-        body: String,
-        contentType: String,
-        charset: String,
-        vararg headers: HttpApi.HeaderPair?
-    ): HttpApi.Response {
-        error("POST not supported by this stub implementation")
-    }
-}
-
 fun getResourcesAsString(path: String): String {
-    return HttpResponse.javaClass.getResource(path)?.readBytes()?.let { String(it) }!!
+    return object {}.javaClass.getResource(path)?.readBytes()?.let { String(it) }!!
 }

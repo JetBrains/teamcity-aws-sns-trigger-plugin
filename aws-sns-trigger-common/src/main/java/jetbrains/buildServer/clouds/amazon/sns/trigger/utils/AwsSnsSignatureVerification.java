@@ -59,7 +59,6 @@ public class AwsSnsSignatureVerification {
         if (mySignatureCertUrl == null || mySignatureCertUrl.trim().isEmpty()) {
             return false;
         }
-        PublicKey publicKey = getSigningCertificate();
 
         // Message type must be defined
         if (SnsMessageType.UNDEFINED.equals(myMessageType)) {
@@ -70,13 +69,15 @@ public class AwsSnsSignatureVerification {
         if (mySignature == null || mySignature.trim().isEmpty()) {
             return false;
         }
-        byte[] decodedSignature = decodeSignature();
 
         String stringToSign = payloadToStringToSign();
         // Empty payload is impossible
         if (stringToSign.isEmpty()) {
             return false;
         }
+
+        byte[] decodedSignature = decodeSignature();
+        PublicKey publicKey = getSigningCertificate();
 
         try {
             Signature sigChecker = getSignatureCheckerForVersion();
