@@ -19,7 +19,7 @@
                  xsi:noNamespaceSchemaLocation="urn:shemas-jetbrains-com:teamcity-plugin-v1-xml">
     <info>
         <name>aws-sns-trigger</name>
-        <display-name>AWS SNS Trigger</display-name>
+        <display-name>Amazon SNS Trigger</display-name>
         <version>@Plugin_Version@</version>
         <description>Enables build triggering via SNS notification</description>
         <download-url>https://github.com/JetBrains/teamcity-aws-sns-trigger-plugin</download-url>
