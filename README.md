@@ -15,7 +15,8 @@ When installed and configured, the plugin:
 
 # Download
 
-[//]: # (You can [download the plugin]&#40;https://plugins.jetbrains.com/plugin/9634-google-artifact-storage&#41; and install it as [an additional TeamCity plugin]&#40;https://confluence.jetbrains.com/display/TCDL/Installing+Additional+Plugins&#41;.)
+You can [download the plugin](https://plugins.jetbrains.com/plugin/19879-amazon-sns-trigger/) and install it
+as [an additional TeamCity plugin](https://confluence.jetbrains.com/display/TCDL/Installing+Additional+Plugins).
 
 # Compatibility
 
