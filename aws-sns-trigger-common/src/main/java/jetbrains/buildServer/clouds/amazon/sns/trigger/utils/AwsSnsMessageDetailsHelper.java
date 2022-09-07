@@ -64,7 +64,8 @@ public class AwsSnsMessageDetailsHelper {
 
     try (Reader bodyReader = new StringReader(body)) {
       XPath xpath = XPath.newInstance(AwsSnsTriggerConstants.SUBSCRIBE_CONFIRMATION_ARN_XPATH);
-      return xpath.valueOf(new SAXBuilder().build(bodyReader));
+      String subscribeArn = xpath.valueOf(new SAXBuilder().build(bodyReader));
+      return subscribeArn != null ? subscribeArn.trim() : null;
     }
   }
 
