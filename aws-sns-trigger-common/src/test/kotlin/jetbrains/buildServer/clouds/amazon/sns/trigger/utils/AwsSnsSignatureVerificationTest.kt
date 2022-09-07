@@ -12,7 +12,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.IOException
 import java.security.SignatureException
@@ -20,6 +23,7 @@ import java.security.cert.CertificateException
 import java.util.*
 
 @ExtendWith(MockKExtension::class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 internal class AwsSnsSignatureVerificationTest {
     @MockK
     private lateinit var serverApiMock: HttpApi
@@ -82,6 +86,7 @@ internal class AwsSnsSignatureVerificationTest {
     }
 
     @Test
+    @Order(0)
     fun `throws can't get signature from sns message io exception`() {
         every { serverApiMock.get(any()) } throws IOException()
 
@@ -100,6 +105,7 @@ internal class AwsSnsSignatureVerificationTest {
     }
 
     @Test
+    @Order(0)
     fun `throws can't get signature from sns message certificate exception`() {
         testable = AwsSnsSignatureVerification(
             SnsMessageType.NOTIFICATION,
