@@ -4,21 +4,21 @@
 [![plugin status](
 https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:TeamCityPluginsByJetBrains_TeamcityAwsSnsTriggerPlugin_Build)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=TeamCityPluginsByJetBrains_TeamcityAwsSnsTriggerPlugin_Build&guest=1)
 
-The plugin enables a new type of build trigger. Currently, the plugin supports only the HTTP(S) subscription type.
+The plugin enables a new type of build trigger. Currently, it supports only the HTTP(S) subscription type.
 
-The plugin allows building triggers from multiple SNS topics and supports basic build customization for these triggers.
+This plugin allows triggers from multiple SNS topics and supports basic build customization for them.
 
 # Compatibility
 
-The plugin is compatible with [TeamCity](https://www.jetbrains.com/teamcity/download/) **2022.04** and greater.
+Compatible with [TeamCity](https://www.jetbrains.com/teamcity/download/) **2022.04** and greater.
 
 # Installation
 
-1. Download the [Amazon SNS Trigger plugin](https://plugins.jetbrains.com/plugin/19879-amazon-sns-trigger/)
+1. Download the [Amazon SNS Trigger plugin](https://plugins.jetbrains.com/plugin/19879-amazon-sns-trigger/).
 2. Install it as
-   an [additional TeamCity plugin](https://confluence.jetbrains.com/display/TCDL/Installing+Additional+Plugins)
+   an [additional TeamCity plugin](https://confluence.jetbrains.com/display/TCDL/Installing+Additional+Plugins).
 
-The plugin automatically adds a new trigger type for your build configuration in TeamCity.
+After that, a new trigger type is automatically added for your build configuration in TeamCity.
 
 # Configuration
 
