@@ -52,7 +52,7 @@ public class AwsSnsBuildTriggerState {
 
   @NotNull
   public Map<String, SnsNotificationDto> getRegisteredMessages() {
-      String messagesMapAsString = myStorage.getValue(TRIGGER_STORE_MESSAGES);
+    String messagesMapAsString = myStorage.getValue(TRIGGER_STORE_MESSAGES);
 
     if (messagesMapAsString == null || messagesMapAsString.isEmpty()) {
       return Collections.emptyMap();

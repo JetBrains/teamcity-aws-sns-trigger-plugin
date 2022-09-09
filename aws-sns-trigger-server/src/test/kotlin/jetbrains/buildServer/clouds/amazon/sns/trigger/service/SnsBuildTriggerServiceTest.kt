@@ -46,7 +46,8 @@ class SnsBuildTriggerServiceTest {
         triggerContext =
             AwsSnsTriggeringContext(
                 projectManagerMock,
-                webLinksMock
+                webLinksMock,
+                SnsMessageParametersCustomisationService(mockk(relaxed = true))
             )
         testable = SnsBuildTriggerService(
             extensionHolderMock,
