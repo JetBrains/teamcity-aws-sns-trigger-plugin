@@ -105,7 +105,6 @@ class SnsBuildTriggeringPolicyTest {
 
         verifyOrder {
             customDataStorageMock.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, null)
-            customDataStorageMock.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE, "true")
         }
         confirmVerified(customDataStorageMock)
     }

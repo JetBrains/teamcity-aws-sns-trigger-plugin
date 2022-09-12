@@ -19,33 +19,20 @@ package jetbrains.buildServer.clouds.amazon.sns.trigger.service;
 import jetbrains.buildServer.ExtensionHolder;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
-import jetbrains.buildServer.serverSide.SProject;
-import jetbrains.buildServer.serverSide.parameters.ProjectParametersProvider;
+import jetbrains.buildServer.serverSide.SBuild;
+import jetbrains.buildServer.serverSide.parameters.BuildParametersProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SnsMessageParametersCustomisationService implements ProjectParametersProvider {
+public class SnsMessageParametersCustomisationService implements BuildParametersProvider {
     private final Pattern snsParametersPattern = Pattern.compile(AwsSnsTriggerConstants.SNS_CUSTOM_PARAMETERS_PATTERN, Pattern.MULTILINE);
 
     public SnsMessageParametersCustomisationService(@NotNull final ExtensionHolder extensionHolder) {
-        extensionHolder.registerExtension(ProjectParametersProvider.class, getClass().getName(), this);
-    }
-
-    @NotNull
-    @Override
-    public Collection<String> getAvailableParameters(@NotNull SProject sProject) {
-        return Arrays.asList(
-                AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER,
-                AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER,
-                AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER
-        );
+        extensionHolder.registerExtension(BuildParametersProvider.class, getClass().getName(), this);
     }
 
     @NotNull
@@ -111,6 +98,22 @@ public class SnsMessageParametersCustomisationService implements ProjectParamete
         }
 
         return new PlaceholderData(placeholder, key, attributeName);
+    }
+
+    @NotNull
+    @Override
+    public Map<String, String> getParameters(@NotNull SBuild build, boolean emulationMode) {
+        return new HashMap<>();
+    }
+
+    @NotNull
+    @Override
+    public Collection<String> getParametersAvailableOnAgent(@NotNull SBuild build) {
+        return Arrays.asList(
+                AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER,
+                AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER,
+                AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER
+        );
     }
 
     private static class PlaceholderData {

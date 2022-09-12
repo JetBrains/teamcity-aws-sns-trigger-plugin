@@ -177,6 +177,10 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
   }
 
   private void handleUnsubscribe(@NotNull CustomDataStorage cds) {
+    // cleanup
     cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, null);
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN, null);
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL, null);
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, null);
   }
 }

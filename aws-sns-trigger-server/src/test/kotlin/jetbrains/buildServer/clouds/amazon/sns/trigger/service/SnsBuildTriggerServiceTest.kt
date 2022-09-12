@@ -82,13 +82,11 @@ class SnsBuildTriggerServiceTest {
             .apply { messageId = "some-id" }
         val cdsMock = mockk<CustomDataStorage>(relaxed = true)
 
-        every { cdsMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE) } returns "true"
         every { cdsMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES) } returns null
 
         testable.registerMessage(dto, cdsMock)
 
         verifyOrder {
-            cdsMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE)
             cdsMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES)
             cdsMock.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, any())
             cdsMock.flush()

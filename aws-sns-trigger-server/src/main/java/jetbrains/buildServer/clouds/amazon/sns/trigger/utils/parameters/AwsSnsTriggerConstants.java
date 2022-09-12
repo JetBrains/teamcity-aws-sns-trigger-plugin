@@ -29,7 +29,6 @@ public final class AwsSnsTriggerConstants {
     public static final String TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL = "unsubscribeURL";
     public static final String TRIGGER_STORE_CURRENT_TOPIC_ARN = "topicArn";
     public static final String TRIGGER_STORE_MESSAGES = "messages";
-    public static final String TRIGGER_STORE_IS_ACTIVE = "triggerIsActive";
 
     // trigger properties keys
     public static final String TRIGGER_UUID_PROPERTY_KEY = "triggerUuid";
@@ -69,7 +68,7 @@ public final class AwsSnsTriggerConstants {
     public static final String SNS_MESSAGE_PLACEHOLDER_CHECK = "%sns.message";
     public static final String SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER = "sns.message.subject";
     public static final String SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER = "sns.message.body";
-    public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER = "sns.message.attributes.<name>";
+    public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER = "sns.message.attributes._name_";
 
     // Regexp for the custom parameters
     public static final String SNS_CUSTOM_PARAMETERS_PATTERN = "%(sns\\.message\\.(subject|body|attributes)(\\.[A-Za-z0-9_\\-\\.]+)?)%";

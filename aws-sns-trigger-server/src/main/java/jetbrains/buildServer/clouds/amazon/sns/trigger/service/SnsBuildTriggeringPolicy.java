@@ -117,7 +117,6 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
             contextLogger
     );
     state.resetMessagesMap();
-    state.setTriggerActive(true);
   }
 
   @Nullable

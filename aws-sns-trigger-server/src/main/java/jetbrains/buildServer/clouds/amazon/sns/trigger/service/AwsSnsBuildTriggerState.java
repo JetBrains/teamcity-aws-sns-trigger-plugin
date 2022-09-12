@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE;
 import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES;
 
 public class AwsSnsBuildTriggerState {
@@ -93,8 +92,4 @@ public class AwsSnsBuildTriggerState {
       myStorage.putValue(TRIGGER_STORE_MESSAGES, null);
   }
 
-  public void setTriggerActive(@NotNull Boolean isActive) {
-      myStorage.putValue(TRIGGER_STORE_IS_ACTIVE, isActive.toString());
-  }
 }
-

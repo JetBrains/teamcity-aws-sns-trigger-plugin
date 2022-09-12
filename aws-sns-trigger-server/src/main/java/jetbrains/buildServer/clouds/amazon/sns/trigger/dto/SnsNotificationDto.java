@@ -16,6 +16,7 @@
 
 package jetbrains.buildServer.clouds.amazon.sns.trigger.dto;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -40,7 +41,7 @@ public class SnsNotificationDto {
           @Nullable String topic,
           @Nullable String subject,
           @Nullable String message,
-          @Nullable Instant timestamp,
+          @NotNull Instant timestamp,
           @Nullable String unsubscribeUrl,
           @Nullable Map<String, Object> attributes
   ) {
@@ -90,12 +91,12 @@ public class SnsNotificationDto {
     myMessage = message;
   }
 
-  @Nullable
+  @NotNull
   public Instant getTimestamp() {
     return myTimestamp;
   }
 
-  public void setTimestamp(@Nullable Instant timestamp) {
+  public void setTimestamp(@NotNull Instant timestamp) {
     myTimestamp = timestamp;
   }
 
