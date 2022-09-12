@@ -67,7 +67,7 @@ internal class AwsSnsSignatureVerificationTest {
     }
 
     @Test
-    fun `trows can't decode sns signature exception`() {
+    fun `throws can't decode sns signature exception`() {
         val customized = mutableMapOf<String, Any?>().also { it.putAll(notificationPayload) }
         customized[AwsSnsTriggerConstants.SIGNING_SIGNATURE_KEY] = "not a base64 string"
 
