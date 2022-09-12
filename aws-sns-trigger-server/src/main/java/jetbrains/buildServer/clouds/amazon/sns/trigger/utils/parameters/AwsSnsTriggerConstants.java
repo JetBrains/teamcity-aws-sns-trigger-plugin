@@ -67,6 +67,7 @@ public final class AwsSnsTriggerConstants {
 
     // Key-collections for SNS message verification
     public static final List<String> SUBSCRIPTION_CONFIRMATION_KEYS_LIST = Arrays.asList(
+            // same fields-set used for Unsubscription message validation
             NOTIFICATION_MESSAGE_KEY,
             NOTIFICATION_MESSAGE_ID_KEY,
             SUBSCRIBE_URL_KEY,
