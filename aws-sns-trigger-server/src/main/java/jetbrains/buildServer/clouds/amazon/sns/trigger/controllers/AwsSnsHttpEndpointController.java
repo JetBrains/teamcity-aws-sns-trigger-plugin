@@ -35,16 +35,16 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static jetbrains.buildServer.clouds.amazon.sns.trigger.service.SnsBuildTriggerService.TRIGGER_NAME;
-import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.*;
 import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.getCustomDataStorage;
 
 public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
-  public static final String PATH = SNS_CONNECTION_CONTROLLER_URL;
-  private final Pattern pathPattern = Pattern.compile(SNS_CONNECTION_CONTROLLER_URL_PATTERN);
+  public static final String PATH = AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL;
+  private final Pattern pathPattern = Pattern.compile(AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL_PATTERN);
   private final ProjectManager myProjectManager;
   private final HttpApi myServerApi;
 
@@ -113,35 +113,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
       // OK! we've defined project and the buildType with necessary buildTrigger
       // lets get into request details and find out what kind of request is it?
       if (isPost(request)) {
-        CustomDataStorage cds = getCustomDataStorage(buildType, buildTrigger);
-        HashMap<String, Object> payload = readJson(request);
-
-        if (payload != null && AwsSnsMessageDetailsHelper.isValidSignature(payload, myServerApi)) {
-          if (AwsSnsMessageDetailsHelper.isSubscription(payload)) {
-            String arn = AwsSnsMessageDetailsHelper.subscribe(payload, myServerApi);
-            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, arn);
-            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN, request.getHeader(AWS_TOPIC_ARN_HEADER));
-          } else if (AwsSnsMessageDetailsHelper.isUnsubscribe(payload)) {
-            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, null);
-          } else if (AwsSnsMessageDetailsHelper.isNotification(payload)) {
-            SnsNotificationDto dto = AwsSnsMessageDetailsHelper.convertToNotificationDto(request, payload);
-            String expectedArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
-            String currentArn = dto.getSubscriptionArn();
-            String unsubscribeUrl = dto.getUnsubscribeUrl();
-
-            if (expectedArn == null || !expectedArn.equals(currentArn)) {
-              throw new AwsSnsHttpEndpointException("Trigger " + buildTrigger.getTriggerName() + " isn't subscribed to topic " + dto.getTopic());
-            }
-
-            cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL, unsubscribeUrl);
-
-            BuildTriggerService bts = buildTrigger.getBuildTriggerService();
-            if (bts instanceof SnsBuildTriggerService) {
-              SnsBuildTriggerService btService = (SnsBuildTriggerService) bts;
-              btService.registerMessage(dto, cds);
-            }
-          }
-        }
+        doPost(request, buildType, buildTrigger);
       }
       // otherwise just ignore this message
     } catch (Exception error) {
@@ -151,5 +123,60 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
 
     // this will return HTTP_CODE 200
     return null;
+  }
+
+  private void doPost(
+          @NotNull final HttpServletRequest request,
+          @NotNull final SBuildType buildType,
+          @NotNull final BuildTriggerDescriptor buildTrigger
+  ) throws AwsSnsHttpEndpointException {
+    CustomDataStorage cds = getCustomDataStorage(buildType, buildTrigger);
+    HashMap<String, Object> payload = readJson(request);
+
+    if (payload != null && AwsSnsMessageDetailsHelper.isValidSignature(payload, myServerApi)) {
+      if (AwsSnsMessageDetailsHelper.isSubscription(payload)) {
+        handleSubscription(request.getHeader(AwsSnsTriggerConstants.AWS_TOPIC_ARN_HEADER), cds, payload);
+      } else if (AwsSnsMessageDetailsHelper.isUnsubscribe(payload)) {
+        handleUnsubscribe(cds);
+      } else if (AwsSnsMessageDetailsHelper.isNotification(payload)) {
+        handleNotification(buildTrigger, cds, AwsSnsMessageDetailsHelper.convertToNotificationDto(request, payload));
+      }
+    }
+  }
+
+  private void handleSubscription(
+          @NotNull String currentTopicArn,
+          @NotNull CustomDataStorage cds,
+          @NotNull final Map<String, Object> payload
+  ) throws AwsSnsHttpEndpointException {
+    String arn = AwsSnsMessageDetailsHelper.subscribe(payload, myServerApi);
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, arn);
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN, currentTopicArn);
+  }
+
+  private void handleNotification(
+          @NotNull BuildTriggerDescriptor buildTrigger,
+          @NotNull CustomDataStorage cds,
+          @NotNull SnsNotificationDto dto
+  ) throws AwsSnsHttpEndpointException {
+    String expectedArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
+    String currentArn = dto.getSubscriptionArn();
+    String unsubscribeUrl = dto.getUnsubscribeUrl();
+
+    if (expectedArn == null || !expectedArn.equals(currentArn)) {
+      throw new AwsSnsHttpEndpointException("Trigger " + buildTrigger.getTriggerName() + " isn't subscribed to topic " + dto.getTopic());
+    }
+
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL, unsubscribeUrl);
+
+    BuildTriggerService bts = buildTrigger.getBuildTriggerService();
+    if (bts instanceof SnsBuildTriggerService) {
+      SnsBuildTriggerService btService = (SnsBuildTriggerService) bts;
+      btService.registerMessage(dto, cds);
+    }
+  }
+
+  private void handleUnsubscribe(@NotNull CustomDataStorage cds) {
+    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, null);
   }
 }

@@ -16,7 +16,6 @@
 
 package jetbrains.buildServer.clouds.amazon.sns.trigger.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jetbrains.buildServer.ExtensionHolder;
@@ -24,6 +23,7 @@ import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerService;
 import jetbrains.buildServer.buildTriggers.BuildTriggeringPolicy;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
@@ -149,23 +149,27 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     return true;
   }
 
-  public void registerMessage(@NotNull SnsNotificationDto notificationDto, @NotNull CustomDataStorage cds) throws JsonProcessingException {
+  public void registerMessage(@NotNull SnsNotificationDto notificationDto, @NotNull CustomDataStorage cds) throws AwsSnsHttpEndpointException {
     if (!StringUtil.isTrue(cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE))) return;
 
     String messagesMapAsString = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES);
 
-    HashMap<String, SnsNotificationDto> messagesMap;
-    if (messagesMapAsString == null) {
-      messagesMap = new HashMap<>();
-    } else {
-      messagesMap = myObjectMapper.readValue(messagesMapAsString, new TypeReference<HashMap<String, SnsNotificationDto>>() {
-      });
+    try {
+      HashMap<String, SnsNotificationDto> messagesMap;
+      if (messagesMapAsString == null) {
+        messagesMap = new HashMap<>();
+      } else {
+        messagesMap = myObjectMapper.readValue(messagesMapAsString, new TypeReference<HashMap<String, SnsNotificationDto>>() {
+        });
+      }
+
+      messagesMap.put(notificationDto.getMessageId(), notificationDto);
+      String updatedMessagesMapAsString = myObjectMapper.writeValueAsString(messagesMap);
+      cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, updatedMessagesMapAsString);
+    } catch (Exception e) {
+      throw new AwsSnsHttpEndpointException("Can't register incoming notification", e);
     }
 
-    messagesMap.put(notificationDto.getMessageId(), notificationDto);
-    String updatedMessagesMapAsString = myObjectMapper.writeValueAsString(messagesMap);
-
-    cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, updatedMessagesMapAsString);
     cds.flush();
   }
 }

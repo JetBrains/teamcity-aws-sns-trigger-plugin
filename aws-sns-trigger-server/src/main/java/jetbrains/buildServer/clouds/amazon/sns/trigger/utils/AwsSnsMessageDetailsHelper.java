@@ -18,16 +18,15 @@ package jetbrains.buildServer.clouds.amazon.sns.trigger.utils;
 
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsMessageType;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.http.HttpApi;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.time.Instant;
@@ -57,15 +56,19 @@ public class AwsSnsMessageDetailsHelper {
 
   @Nullable
   public static String subscribe(@NotNull Map<String, Object> payload,
-                                 @NotNull HttpApi serverApi) throws IOException, JDOMException {
-    String subscribeUrl = (String) payload.get(AwsSnsTriggerConstants.SUBSCRIBE_URL_KEY);
-    HttpApi.Response response = serverApi.get(subscribeUrl);
-    String body = response.getBody();
+                                 @NotNull HttpApi serverApi) throws AwsSnsHttpEndpointException {
+    try {
+      String subscribeUrl = (String) payload.get(AwsSnsTriggerConstants.SUBSCRIBE_URL_KEY);
+      HttpApi.Response response = serverApi.get(subscribeUrl);
+      String body = response.getBody();
 
-    try (Reader bodyReader = new StringReader(body)) {
-      XPath xpath = XPath.newInstance(AwsSnsTriggerConstants.SUBSCRIBE_CONFIRMATION_ARN_XPATH);
-      String subscribeArn = xpath.valueOf(new SAXBuilder().build(bodyReader));
-      return subscribeArn != null ? subscribeArn.trim() : null;
+      try (Reader bodyReader = new StringReader(body)) {
+        XPath xpath = XPath.newInstance(AwsSnsTriggerConstants.SUBSCRIBE_CONFIRMATION_ARN_XPATH);
+        String subscribeArn = xpath.valueOf(new SAXBuilder().build(bodyReader));
+        return subscribeArn != null ? subscribeArn.trim() : null;
+      }
+    } catch (Exception e) {
+      throw new AwsSnsHttpEndpointException("Couldn't subscribe", e);
     }
   }
 

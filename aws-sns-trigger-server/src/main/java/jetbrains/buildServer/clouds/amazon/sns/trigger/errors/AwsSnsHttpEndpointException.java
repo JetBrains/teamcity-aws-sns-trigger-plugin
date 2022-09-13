@@ -24,4 +24,7 @@ public class AwsSnsHttpEndpointException extends Exception {
     super(message);
   }
 
+  public AwsSnsHttpEndpointException(@NotNull final String message, @NotNull Exception cause) {
+    super(message, cause);
+  }
 }

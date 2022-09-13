@@ -18,6 +18,7 @@ package jetbrains.buildServer.clouds.amazon.sns.trigger.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
 import jetbrains.buildServer.controllers.BaseController;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import org.apache.commons.codec.Charsets;
@@ -46,13 +47,15 @@ public abstract class BaseAwsConnectionController extends BaseController {
       writer.flush();
   }
 
-  protected <T> T readJson(@NotNull HttpServletRequest request) throws IOException {
-    T requestObject;
-    try (Reader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8))) {
-      requestObject = OBJECT_MAPPER.readValue(reader, new TypeReference<T>() {
-      });
-    }
+    protected <T> T readJson(@NotNull HttpServletRequest request) throws AwsSnsHttpEndpointException {
+        T requestObject;
+        try (Reader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8))) {
+            requestObject = OBJECT_MAPPER.readValue(reader, new TypeReference<T>() {
+            });
+        } catch (Exception e) {
+            throw new AwsSnsHttpEndpointException("Can't parse request body", e);
+        }
 
-    return requestObject;
-  }
+        return requestObject;
+    }
 }
