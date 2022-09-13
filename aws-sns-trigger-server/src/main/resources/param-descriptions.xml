@@ -1,0 +1,6 @@
+<descriptions>
+    <description for="^sns\.message\.subject$">Subject value from SNS message (only provided by Amazon SNS Trigger)
+    </description>
+    <description for="^sns\.message\.body$">Message body from SNS message (only provided by Amazon SNS Trigger)
+    </description>
+</descriptions>

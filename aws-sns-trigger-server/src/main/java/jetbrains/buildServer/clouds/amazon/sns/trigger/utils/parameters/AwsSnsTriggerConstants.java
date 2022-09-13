@@ -65,13 +65,12 @@ public final class AwsSnsTriggerConstants {
     public static final String SUBSCRIBE_CONFIRMATION_ARN_XPATH = "//*[local-name() = 'ConfirmSubscriptionResult']/*[local-name() = 'SubscriptionArn']";
 
     // Custom parameters placeholders
-    public static final String SNS_MESSAGE_PLACEHOLDER_CHECK = "%sns.message";
     public static final String SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER = "sns.message.subject";
+    public static final String SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER_KEY = "sns_message_subject";
     public static final String SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER = "sns.message.body";
-    public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER = "sns.message.attributes._name_";
-
-    // Regexp for the custom parameters
-    public static final String SNS_CUSTOM_PARAMETERS_PATTERN = "%(sns\\.message\\.(subject|body|attributes)(\\.[A-Za-z0-9_\\-\\.]+)?)%";
+    public static final String SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER_KEY = "sns_message_body";
+    public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER = "sns.message.attributes.";
+    public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER_KEY_PREFIX = "sns_message_attributes_";
 
     // Key-collections for SNS message verification
     public static final List<String> SUBSCRIPTION_CONFIRMATION_KEYS_LIST = Arrays.asList(

@@ -1,12 +1,14 @@
 package jetbrains.buildServer.clouds.amazon.sns.trigger.service
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
 import jetbrains.buildServer.ExtensionHolder
-import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto
-import org.junit.jupiter.api.Assertions
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants
+import jetbrains.buildServer.serverSide.SBuild
+import jetbrains.buildServer.serverSide.TriggeredBy
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,61 +18,38 @@ internal class SnsMessageParametersCustomisationServiceTest {
     @RelaxedMockK
     private lateinit var extensionHolderMock: ExtensionHolder
 
+    @MockK
+    private lateinit var buildMock: SBuild
+
+    @MockK
+    private lateinit var triggeredByMock: TriggeredBy
+
     private lateinit var testable: SnsMessageParametersCustomisationService
-
-    private lateinit var messageAttributes: Map<String, Any?>
-
-    private val objectMapper = ObjectMapper()
 
     @BeforeEach
     fun setup() {
         testable = SnsMessageParametersCustomisationService(extensionHolderMock)
-        messageAttributes = objectMapper.readValue(
-            """
-  {
-    "bar" : {"Type":"Number","Value":"3.14"},
-    "foo-bar" : {"Type":"String","Value":"[\"lol\", \"kek\"]"},
-    "foo" : {"Type":"String","Value":"lol"},
-    "foo_bar" : {"Type":"String.Array","Value":"[\"lol\", \"kek\"]"},
-    "foo.bar" : {"Type":"Binary","Value":"YUdWc2JHOGdkMjl5YkdRaA=="}
-  }
-            """.trimIndent(),
-            object : TypeReference<HashMap<String, Any?>>() {}
-        )
+        every { buildMock.triggeredBy } returns triggeredByMock
     }
 
     @Test
-    fun replacePlaceholdersWithValues() {
-        val subj = "subjectValue"
-        val body = "bodyValue"
-        val foo = "lol"
-        val bar = "3.14"
-        val `foo-bar` = "[\"lol\", \"kek\"]"
-        val foo_bar = "[\"lol\", \"kek\"]"
-        val foobar = "YUdWc2JHOGdkMjl5YkdRaA=="
+    fun getParameters() {
+        every { triggeredByMock.parameters } returns mapOf(
+            AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER_KEY to "test subject",
+            AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER_KEY to "test message",
+            AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER_KEY_PREFIX + "foo" to "foo_value"
+        )
+        val result = testable.getParameters(buildMock, false)
+        assertEquals("test subject", result[AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER])
+        assertEquals("test message", result[AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER])
+        assertEquals("foo_value", result[AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER + "foo"])
+    }
 
-        val value = """%sns.message.subject% maybe even with %sns.message.body%  and with few attributes:
-            %sns.message.attributes.foo%
-            %sns.message.attributes.bar%
-            %sns.message.attributes.foo-bar%
-            %sns.message.attributes.foo_bar%
-            %sns.message.attributes.foo.bar%
-        """.trimIndent()
-
-        val expected = """$subj maybe even with $body  and with few attributes:
-            $foo
-            $bar
-            $`foo-bar`
-            $foo_bar
-            $foobar
-        """.trimIndent()
-        val message = SnsNotificationDto().apply {
-            subject = subj
-            message = body
-            attributes = messageAttributes
-        }
-
-        val result = testable.replacePlaceholdersWithValues(value, message)
-        Assertions.assertEquals(expected, result)
+    @Test
+    fun getParametersEmulation() {
+        every { triggeredByMock.parameters } returns emptyMap()
+        val result = testable.getParameters(buildMock, true)
+        assertEquals("???", result[AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER])
+        assertEquals("???", result[AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER])
     }
 }
