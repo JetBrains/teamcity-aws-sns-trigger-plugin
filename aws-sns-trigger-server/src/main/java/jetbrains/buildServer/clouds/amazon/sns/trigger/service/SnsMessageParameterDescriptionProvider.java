@@ -44,6 +44,7 @@ public class SnsMessageParameterDescriptionProvider extends AbstractParameterDes
                 .filter(entry -> entry.getKey().matcher(paramName).find())
                 .findFirst()
                 .map(Map.Entry::getValue)
+                .map(String::trim)
                 .orElse(null);
     }
 }
