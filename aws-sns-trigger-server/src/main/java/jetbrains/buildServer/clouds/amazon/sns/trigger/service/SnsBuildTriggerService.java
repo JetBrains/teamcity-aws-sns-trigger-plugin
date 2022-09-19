@@ -81,9 +81,9 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     SBuildType buildType = myTriggeringContext.getProjectManager().findBuildTypeByExternalId(btExternalId);
 
     sb.append("Trigger UUID: ").append(properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY));
-    sb.append("\n");
+    sb.append(System.lineSeparator());
     sb.append("Trigger URL: ")
-            .append("\n")
+            .append(System.lineSeparator())
             .append(properties.get(AwsSnsTriggerConstants.TRIGGER_ENDPOINT_URL_PROPERTY_KEY));
 
     if (buildType != null) {
@@ -92,19 +92,19 @@ public class SnsBuildTriggerService extends BuildTriggerService {
       String topicSubscriptionArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
 
       if (topicArn != null) {
-        sb.append("\n")
+        sb.append(System.lineSeparator())
                 .append("Topic ARN:")
-                .append("\n")
+                .append(System.lineSeparator())
                 .append(topicArn);
       }
 
       if (topicSubscriptionArn != null) {
-        sb.append("\n")
+        sb.append(System.lineSeparator())
                 .append("Subscription ARN:")
-                .append("\n")
+                .append(System.lineSeparator())
                 .append(topicSubscriptionArn);
       } else {
-        sb.append("\n").append("Pending subscription...");
+        sb.append(System.lineSeparator()).append("Pending subscription...");
       }
     }
 
