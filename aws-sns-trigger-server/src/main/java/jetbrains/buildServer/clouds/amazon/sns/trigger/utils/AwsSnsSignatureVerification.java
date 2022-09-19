@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AwsSnsSignatureVerification {
+    public static final String X_509_CERT = "X.509";
     private static Logger LOG = Logger.getInstance(AwsSnsSignatureVerification.class.getName());
     private static final Map<String, PublicKey> certificateCache = new ConcurrentHashMap<>();
     private final String mySignatureCertUrl;
@@ -125,7 +126,7 @@ public class AwsSnsSignatureVerification {
 
         if (publicKey == null) {
             HttpApi.Response response = myServerApi.get(mySignatureCertUrl);
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            CertificateFactory cf = CertificateFactory.getInstance(X_509_CERT);
             X509Certificate certificate = (X509Certificate) cf.generateCertificate(
                     new ByteArrayInputStream(response.getBody().getBytes(StandardCharsets.UTF_8))
             );

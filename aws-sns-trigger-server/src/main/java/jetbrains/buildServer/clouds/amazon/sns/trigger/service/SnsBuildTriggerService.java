@@ -136,7 +136,7 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   @NotNull
   @Override
   public BuildTriggeringPolicy getBuildTriggeringPolicy() {
-    return new AllBranchesAwsSnsBuildTrigger(myTriggeringContext);
+    return new SnsBuildTriggeringPolicy(myTriggeringContext);
   }
 
   @Override

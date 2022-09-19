@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class AllBranchesAwsSnsBuildTriggerTest {
+class SnsBuildTriggeringPolicyTest {
     @RelaxedMockK
     private lateinit var customDataStorageMock: CustomDataStorage
 
@@ -44,7 +44,7 @@ class AllBranchesAwsSnsBuildTriggerTest {
     private lateinit var buildTypeMock: BuildTypeEx
 
     private lateinit var triggerContext: AwsSnsTriggeringContext
-    private lateinit var testable: AllBranchesAwsSnsBuildTrigger
+    private lateinit var testable: SnsBuildTriggeringPolicy
 
     @BeforeEach
     fun startUp() {
@@ -54,7 +54,7 @@ class AllBranchesAwsSnsBuildTriggerTest {
                 webLinksMock
             )
         testable =
-            AllBranchesAwsSnsBuildTrigger(
+            SnsBuildTriggeringPolicy(
                 triggerContext
             )
     }

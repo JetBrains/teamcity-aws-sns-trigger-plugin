@@ -31,16 +31,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class AllBranchesAwsSnsBuildTrigger extends PolledBuildTrigger {
+public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
+  public static final String DEFAULT_BRANCH = "";
   private final AwsSnsTriggeringContext myTriggeringContext;
 
-  public AllBranchesAwsSnsBuildTrigger(@NotNull AwsSnsTriggeringContext triggeringContext) {
+  public SnsBuildTriggeringPolicy(@NotNull AwsSnsTriggeringContext triggeringContext) {
     myTriggeringContext = triggeringContext;
   }
 
   private BuildPromotionEx createBuildPromotion(PolledTriggerContext context) {
     BuildCustomizer buildCustomizer = context.createBuildCustomizer(null);
-    buildCustomizer.setDesiredBranchName(""); // default branch
+    buildCustomizer.setDesiredBranchName(DEFAULT_BRANCH);
     return (BuildPromotionEx) buildCustomizer.createPromotion();
   }
 
