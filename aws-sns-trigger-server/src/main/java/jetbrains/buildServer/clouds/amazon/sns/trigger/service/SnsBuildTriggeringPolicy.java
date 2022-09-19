@@ -22,7 +22,7 @@ import jetbrains.buildServer.buildTriggers.PolledBuildTrigger;
 import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
-import jetbrains.buildServer.serverSide.BuildCustomizerEx;
+import jetbrains.buildServer.serverSide.BuildCustomizer;
 import jetbrains.buildServer.serverSide.BuildPromotionEx;
 import jetbrains.buildServer.serverSide.BuildTypeEx;
 import jetbrains.buildServer.serverSide.TriggeredByBuilder;

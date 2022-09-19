@@ -64,7 +64,7 @@ class SnsBuildTriggeringPolicyTest {
                     parametersCustomizerMock
                 )
             )
-        testable = spyk(AllBranchesAwsSnsBuildTrigger(triggerContext), recordPrivateCalls = true)
+        testable = spyk(SnsBuildTriggeringPolicy(triggerContext), recordPrivateCalls = true)
     }
 
     @Test
