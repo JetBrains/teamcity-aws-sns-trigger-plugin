@@ -8,4 +8,8 @@
     <bean class="jetbrains.buildServer.clouds.amazon.sns.trigger.controllers.AwsSnsHttpEndpointController"/>
     <bean class="jetbrains.buildServer.clouds.amazon.sns.trigger.service.AwsSnsTriggeringContext"/>
     <bean id="awsSnsTrigger" class="jetbrains.buildServer.clouds.amazon.sns.trigger.service.SnsBuildTriggerService"/>
+    <bean id="awsSnsParametersProvider"
+          class="jetbrains.buildServer.clouds.amazon.sns.trigger.service.SnsMessageParametersCustomisationService"/>
+    <bean id="awsSnsParametersDescriptionProvider"
+          class="jetbrains.buildServer.clouds.amazon.sns.trigger.service.SnsMessageParameterDescriptionProvider"/>
 </beans>

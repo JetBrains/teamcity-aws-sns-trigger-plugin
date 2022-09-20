@@ -32,6 +32,27 @@ To configure AWS SNS Trigger in TeamCity, do the following:
 
 You can configure more than one trigger of that type.
 
+## Build Customization
+
+Trigger introduce new build parameters:
+
+`%sns.message.subject%` - extracts Subject value from the SNS message.
+
+`%sns.message.body%` - message body from the SNS message.
+
+`%sns.message.attributes.<name>%` - message attributes. Replace `<name>` with actual attribute name.
+
+Feel free to use them at your will.
+
+Values extracted as-is from the SNS message, so all values passed as strings (null values passed as empty strings).
+
+TeamCity doesn't support attributes with dot (.) symbol in the name.
+
+`sns.message.attributes.<name>` is a dynamically named attribute and can't be used it static context, like build
+configuration.
+If you want to use values from attributes in the build configuration, create custom property and initialize it via '
+Trigger Configuration' -> 'Build Customization' -> 'Build Parameters'
+
 # Build
 
 This project uses Gradle as the build system. You can easily open it

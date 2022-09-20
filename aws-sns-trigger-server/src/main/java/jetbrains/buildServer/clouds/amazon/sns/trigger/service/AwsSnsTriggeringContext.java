@@ -32,14 +32,17 @@ public class AwsSnsTriggeringContext {
           .registerModule(new JavaTimeModule());
   private final ProjectManager myProjectManager;
   private final WebLinks myWebLinks;
+  private final SnsMessageParametersCustomisationService myParameterCustomisationService;
 
   public AwsSnsTriggeringContext(
           @NotNull final ProjectManager projectManager,
-          @NotNull final WebLinks webLinks
+          @NotNull final WebLinks webLinks,
+          @NotNull final SnsMessageParametersCustomisationService parameterCustomizationService
   ) {
     myObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     myProjectManager = projectManager;
     myWebLinks = webLinks;
+    myParameterCustomisationService = parameterCustomizationService;
   }
 
   @NotNull
@@ -53,5 +56,9 @@ public class AwsSnsTriggeringContext {
 
   public WebLinks getMyWebLinks() {
     return myWebLinks;
+  }
+
+  public SnsMessageParametersCustomisationService getParameterCustomisationService() {
+    return myParameterCustomisationService;
   }
 }

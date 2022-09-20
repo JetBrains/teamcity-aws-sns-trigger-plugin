@@ -28,7 +28,6 @@ import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTr
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.serverSide.SBuildType;
-import jetbrains.buildServer.util.StringUtil;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,6 +89,7 @@ public class SnsBuildTriggerService extends BuildTriggerService {
       CustomDataStorage cds = getCustomDataStorage(buildType, trigger);
       String topicArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN);
       String topicSubscriptionArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
+      String topicUnsubscriptionUrl = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL);
 
       if (topicArn != null) {
         sb.append(System.lineSeparator())
@@ -105,6 +105,13 @@ public class SnsBuildTriggerService extends BuildTriggerService {
                 .append(topicSubscriptionArn);
       } else {
         sb.append(System.lineSeparator()).append("Pending subscription...");
+      }
+
+      if (topicUnsubscriptionUrl != null) {
+        sb.append("\n")
+                .append("Unsubscription URL:")
+                .append("\n")
+                .append(topicUnsubscriptionUrl);
       }
     }
 
@@ -150,8 +157,6 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   }
 
   public void registerMessage(@NotNull SnsNotificationDto notificationDto, @NotNull CustomDataStorage cds) throws AwsSnsHttpEndpointException {
-    if (!StringUtil.isTrue(cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_IS_ACTIVE))) return;
-
     String messagesMapAsString = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES);
 
     try {
