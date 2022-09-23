@@ -26,31 +26,31 @@ To configure AWS SNS Trigger in TeamCity, do the following:
 
 1. Go to the build configuration.
 2. Add `AWS SNS Trigger`.
-3. Copy generated HTTP(S) link.
+3. Copy the generated HTTP(S) link.
 4. Add a new subscription for your SNS topic in the AWS console (see the subscription link in a trigger configuration).
 5. Save the trigger configuration before sending a subscription event.
 
-You can configure more than one trigger of that type.
+You can configure more than one trigger of this type.
 
 ## Build Customization
 
-Trigger introduce new build parameters:
+The trigger introduces new build parameters:
 
-`%sns.message.subject%` - extracts Subject value from the SNS message.
+`%sns.message.subject%` - extracts the Subject value from an SNS message.
 
 `%sns.message.body%` - message body from the SNS message.
 
-`%sns.message.attributes.<name>%` - message attributes. Replace `<name>` with actual attribute name.
+`%sns.message.attributes.<name>%` - message attributes. Replace `<name>` with the actual attribute name.
 
 Feel free to use them at your will.
 
-Values extracted as-is from the SNS message, so all values passed as strings (null values passed as empty strings).
+The values are extracted as-is from the SNS message, so all values are passed as strings (null values are passed as empty strings).
 
-TeamCity doesn't support attributes with dot (.) symbol in the name.
+TeamCity doesn't support attributes with the dot (.) symbol in the name.
 
-`sns.message.attributes.<name>` is a dynamically named attribute and can't be used it static context, like build
+`sns.message.attributes.<name>` is a dynamically named attribute and can't be used in static context, like build
 configuration.
-If you want to use values from attributes in the build configuration, create custom property and initialize it via '
+If you want to use values from attributes in a build configuration, create a custom property and initialize it via '
 Trigger Configuration' -> 'Build Customization' -> 'Build Parameters'
 
 # Build
@@ -58,8 +58,8 @@ Trigger Configuration' -> 'Build Customization' -> 'Build Parameters'
 This project uses Gradle as the build system. You can easily open it
 in [IntelliJ IDEA](https://www.jetbrains.com/idea/help/importing-project-from-gradle-model.html)
 or [Eclipse](http://gradle.org/eclipse/).
-To test & build the plugin, execute the `build` gradle command.
+To test and build the plugin, execute the `build` gradle command.
 
 # Contributions
 
-We appreciate all kinds of feedback, so please feel free to send a PR or write an issue.
+We appreciate all kinds of feedback, so please feel free to send a PR or create an issue.
