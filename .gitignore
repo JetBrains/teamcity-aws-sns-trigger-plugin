@@ -42,7 +42,3 @@ fabric.properties
 .gradle
 build
 /classes/
-
-/aws-sns-trigger-agent/out/
-/aws-sns-trigger-common/out/
-/aws-sns-trigger-server/out/

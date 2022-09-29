@@ -32,7 +32,7 @@
 
 <tr>
     <td colspan="2">
-        <em>AWS SNS Trigger will add a build to the queue when an SNS message received.</em>
+        <em>Amazon SNS Trigger will add a build to the queue when an SNS message received.</em>
     </td>
 </tr>
 

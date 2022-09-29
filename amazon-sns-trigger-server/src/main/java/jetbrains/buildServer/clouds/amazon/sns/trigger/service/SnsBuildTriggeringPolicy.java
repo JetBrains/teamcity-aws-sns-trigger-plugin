@@ -106,7 +106,7 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
   @Override
   public void triggerActivated(@NotNull PolledTriggerContext context) throws BuildTriggerException {
     final Logger contextLogger = context.getLogger();
-    contextLogger.info("Initializing the AWS SNS trigger state");
+    contextLogger.info("Initializing the Amazon SNS trigger state");
     AwsSnsBuildTriggerState state = new AwsSnsBuildTriggerState(
             context.getCustomDataStorage(),
             myTriggeringContext.getObjectMapper(),

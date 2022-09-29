@@ -13,5 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "teamcity-aws-sns-trigger-plugin"
-include("aws-sns-trigger-server")
+rootProject.name = "teamcity-amazon-sns-trigger-plugin"
+include("amazon-sns-trigger-server")
