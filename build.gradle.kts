@@ -27,7 +27,11 @@ val correctVersion = project.hasProperty("versionNumber") && "\\d+\\.\\d+\\.\\d+
 val versionNumber =
     if (correctVersion) property("versionNumber") else "SNAPSHOT-" + SimpleDateFormat("yyyyMMddHHmmss").format(Date())
 val projectIds =
-    mapOf("group" to "teamcity-aws-sns-trigger-plugin", "version" to versionNumber, "artifact" to "aws-sns-trigger")
+    mapOf(
+        "group" to "teamcity-amazon-sns-trigger-plugin",
+        "version" to versionNumber,
+        "artifact" to "amazon-sns-trigger"
+    )
 val teamcityVersion = if (project.hasProperty("teamcityVersion")) property("teamcityVersion") else "2022.08"
 
 allprojects {

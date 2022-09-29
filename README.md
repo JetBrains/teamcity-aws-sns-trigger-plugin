@@ -1,4 +1,4 @@
-# TeamCity AWS SNS Trigger
+# TeamCity Amazon SNS Trigger
 
 [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![plugin status](
@@ -22,10 +22,10 @@ After that, a new trigger type is automatically added for your build configurati
 
 # Configuration
 
-To configure AWS SNS Trigger in TeamCity, do the following:
+To configure Amazon SNS Trigger in TeamCity, do the following:
 
 1. Go to the build configuration.
-2. Add `AWS SNS Trigger`.
+2. Add `Amazon SNS Trigger`.
 3. Copy the generated HTTP(S) link.
 4. Add a new subscription for your SNS topic in the AWS console (see the subscription link in a trigger configuration).
 5. Save the trigger configuration before sending a subscription event.
