@@ -90,6 +90,7 @@ class SnsBuildTriggeringPolicyTest {
         testable.triggerBuild(contextMock)
         assertTrue(slot.isCaptured)
         Assertions.assertEquals("##type='sns' triggerId='' queueMergingEnabled='false'", slot.captured)
+        verify(exactly = 1) { customDataStorageMock.refresh() }
         verify(exactly = 3) { customDataStorageMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES) }
         verify(exactly = 1) { customDataStorageMock.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, null) }
         verify(exactly = 1) { customDataStorageMock.flush() }
