@@ -27,6 +27,7 @@ import jetbrains.buildServer.serverSide.BuildPromotionEx;
 import jetbrains.buildServer.serverSide.BuildTypeEx;
 import jetbrains.buildServer.serverSide.TriggeredByBuilder;
 import jetbrains.buildServer.serverSide.impl.BuildQueueImpl;
+import jetbrains.buildServer.util.TimeIntervalAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,10 +37,13 @@ import java.util.Set;
 
 public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
   public static final String DEFAULT_BRANCH = "";
+  private static final long TWO_MINUTES_IN_MS = 2 * 60 * 1000;
   private final AwsSnsTriggeringContext myTriggeringContext;
+  private final TimeIntervalAction myTimeIntervalAction;
 
   public SnsBuildTriggeringPolicy(@NotNull AwsSnsTriggeringContext triggeringContext) {
     myTriggeringContext = triggeringContext;
+    myTimeIntervalAction = new TimeIntervalAction(TWO_MINUTES_IN_MS);
   }
 
   private static void customizeWithSnsMessageData(@NotNull SnsNotificationDto latestSnsMessage, @NotNull TriggeredByBuilder builder) {
@@ -74,6 +78,8 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
             myTriggeringContext.getObjectMapper(),
             contextLogger
     );
+
+    myTimeIntervalAction.executeCustomAction(context.getCustomDataStorage()::refresh);
 
     if (!state.hasNewNotifications()) {
       contextLogger.debug("No new SNS messages registered");
@@ -113,6 +119,7 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
             contextLogger
     );
     state.resetMessagesMap();
+    myTimeIntervalAction.resetLastActionTime();
   }
 
   @Nullable
