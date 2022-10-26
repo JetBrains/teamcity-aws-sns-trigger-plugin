@@ -118,11 +118,13 @@ public class SnsBuildTriggerService extends BuildTriggerService {
       }
 
       if (topicUnsubscriptionUrl != null) {
-        sb.append("\n")
+        sb.append(System.lineSeparator())
                 .append("Unsubscription URL:")
-                .append("\n")
+                .append(System.lineSeparator())
                 .append(topicUnsubscriptionUrl);
       }
+    } else {
+      sb.append("Post-configuration is required.");
     }
 
     return sb.toString();
@@ -157,17 +159,9 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     return properties -> {
       ArrayList<InvalidProperty> result = new ArrayList<>(2);
       String triggerId = properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY);
-      String btExternalId = properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY);
 
       if (Strings.isBlank(triggerId)) {
         result.add(new InvalidProperty(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, "is mandatory"));
-      }
-
-      if (Strings.isBlank(btExternalId)) {
-        result.add(new InvalidProperty(
-                AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY,
-                "Real Build Configuration is required by the trigger"
-        ));
       }
 
       return result;

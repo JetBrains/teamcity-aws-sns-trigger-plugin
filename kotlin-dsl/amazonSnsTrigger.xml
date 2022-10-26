@@ -25,7 +25,7 @@
                 Unique id of the trigger. Unique in the Build Configuration scope. Required for endpoint handler.
             </description>
         </param>
-        <param name="triggerBuildTypeExternalId" dslName="buildTypeId" mandatory="true" ref="BUILD_TYPE">
+        <param name="triggerBuildTypeExternalId" dslName="buildTypeId" mandatory="false" ref="BUILD_TYPE">
             <description>
                 Reference to the current build type. Specify here id of the build type where this trigger is located.
             </description>
@@ -35,12 +35,11 @@
     <examples>
         <example>
             <description>
-                Basic Amazon SNS Trigger configuration. Where 'Build' is the current Build Configuration name.
+                Basic Amazon SNS Trigger configuration.
             </description>
             <code>
                 amazonSns {
                 triggerId = "mySnsTrigger1"
-                buildTypeId = "${Build.id}"
                 }
             </code>
         </example>
