@@ -54,7 +54,7 @@ public class AwsSnsTriggeringContext {
     return myProjectManager;
   }
 
-  public WebLinks getMyWebLinks() {
+  public WebLinks getWebLinks() {
     return myWebLinks;
   }
 

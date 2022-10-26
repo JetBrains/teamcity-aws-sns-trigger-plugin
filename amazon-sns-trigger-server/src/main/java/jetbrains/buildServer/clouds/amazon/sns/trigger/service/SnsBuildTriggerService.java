@@ -26,15 +26,17 @@ import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.serverSide.CustomDataStorage;
+import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
+import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.getCustomDataStorage;
 
@@ -75,17 +77,25 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   public String describeTrigger(@NotNull BuildTriggerDescriptor trigger) {
     StringBuilder sb = new StringBuilder();
     Map<String, String> properties = trigger.getProperties();
-
+    String triggerId = properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY);
+    String triggerName = properties.get(AwsSnsTriggerConstants.TRIGGER_NAME_PROPERTY_KEY);
     String btExternalId = properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY);
-    SBuildType buildType = myTriggeringContext.getProjectManager().findBuildTypeByExternalId(btExternalId);
 
-    sb.append("Trigger UUID: ").append(properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY));
+    if (Strings.isBlank(triggerName)) {
+      triggerName = triggerId;
+    }
+
+    sb.append("Display Name: ").append(triggerName);
     sb.append(System.lineSeparator());
-    sb.append("Trigger URL: ")
-            .append(System.lineSeparator())
-            .append(properties.get(AwsSnsTriggerConstants.TRIGGER_ENDPOINT_URL_PROPERTY_KEY));
+    sb.append("Amazon SNS Trigger ID: ").append(triggerId);
+    sb.append(System.lineSeparator());
 
+    SBuildType buildType = myTriggeringContext.getProjectManager().findBuildTypeByExternalId(btExternalId);
     if (buildType != null) {
+      sb.append("Trigger URL: ")
+              .append(System.lineSeparator())
+              .append(buildTriggerUrl(triggerId, buildType));
+
       CustomDataStorage cds = getCustomDataStorage(buildType, trigger);
       String topicArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN);
       String topicSubscriptionArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
@@ -118,10 +128,50 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     return sb.toString();
   }
 
+  private String buildTriggerUrl(String triggerId, SBuildType buildType) {
+    StringBuilder result = new StringBuilder();
+    String rootUrl = getRootUrl();
+    String triggerUrlPathPart = AwsSnsTriggerConstants.getTriggerUrlPathPart();
+    String projectExternalId = buildType.getProjectExternalId();
+    String btExternalId = buildType.getExternalId();
+
+    result.append(rootUrl)
+            .append(triggerUrlPathPart)
+            .append("/")
+            .append(projectExternalId)
+            .append("/")
+            .append(btExternalId)
+            .append("/")
+            .append(triggerId);
+
+    return result.toString();
+  }
+
+  private String getRootUrl() {
+    return myTriggeringContext.getWebLinks().getRootUrlByProjectExternalId(null);
+  }
+
   @Nullable
   @Override
   public PropertiesProcessor getTriggerPropertiesProcessor() {
-    return null;
+    return properties -> {
+      ArrayList<InvalidProperty> result = new ArrayList<>(2);
+      String triggerId = properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY);
+      String btExternalId = properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY);
+
+      if (Strings.isBlank(triggerId)) {
+        result.add(new InvalidProperty(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, "is mandatory"));
+      }
+
+      if (Strings.isBlank(btExternalId)) {
+        result.add(new InvalidProperty(
+                AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY,
+                "Real Build Configuration is required by the trigger"
+        ));
+      }
+
+      return result;
+    };
   }
 
   @Nullable
@@ -134,9 +184,7 @@ public class SnsBuildTriggerService extends BuildTriggerService {
   @Override
   public Map<String, String> getDefaultTriggerProperties() {
     Map<String, String> defaults = new HashMap<>();
-    defaults.put(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, UUID.randomUUID().toString());
-    defaults.put("urlPathPart", AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL);
-    defaults.put("rootUrl", myTriggeringContext.getMyWebLinks().getRootUrlByProjectExternalId(null));
+    defaults.put(AwsSnsTriggerConstants.TRIGGER_NAME_PROPERTY_KEY, getDisplayName());
     return defaults;
   }
 
