@@ -16,7 +16,6 @@ import jetbrains.buildServer.serverSide.ProjectManager
 import jetbrains.buildServer.serverSide.WebLinks
 import jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl
 import jetbrains.buildServer.web.openapi.PluginDescriptor
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -66,14 +65,6 @@ class SnsBuildTriggerServiceTest {
 
         val result = testable.describeTrigger(mockk(relaxed = true))
         assertFalse(result.isBlank())
-    }
-
-    @Test
-    fun defaultTriggerProperties() {
-        val props = testable.defaultTriggerProperties
-        assertEquals(AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL, props?.get("urlPathPart"))
-        assertEquals("root/url", props?.get("rootUrl"))
-        assertFalse(props?.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY).isNullOrBlank())
     }
 
     @Test

@@ -1,0 +1,48 @@
+<dsl-extension kind="trigger" type="awsSnsTrigger" generateDslJar="true">
+
+    <class name="AmazonSnsTrigger">
+        <description>
+            Base class for Amazon SNS Trigger.
+            Trigger starts build every time SNS event is registered on HTTP(S) endpoint.
+        </description>
+    </class>
+
+    <function name="amazonSns">
+        <description>
+            Adds Amazon SNS Trigger.
+            @see AmazonSnsTrigger
+        </description>
+    </function>
+
+    <params>
+        <param name="displayName" mandatory="false" type="string">
+            <description>
+                Name to be displayed for current trigger.
+            </description>
+        </param>
+        <param name="triggerUuid" dslName="triggerId" mandatory="true" type="string">
+            <description>
+                Unique id of the trigger. Unique in the Build Configuration scope. Required for endpoint handler.
+            </description>
+        </param>
+        <param name="triggerBuildTypeExternalId" dslName="buildTypeId" mandatory="false" ref="BUILD_TYPE">
+            <description>
+                Reference to the current build type. Specify here id of the build type where this trigger is located.
+            </description>
+        </param>
+    </params>
+
+    <examples>
+        <example>
+            <description>
+                Basic Amazon SNS Trigger configuration.
+            </description>
+            <code>
+                amazonSns {
+                triggerId = "mySnsTrigger1"
+                }
+            </code>
+        </example>
+    </examples>
+
+</dsl-extension>

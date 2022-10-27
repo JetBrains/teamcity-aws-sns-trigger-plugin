@@ -17,21 +17,20 @@
 package jetbrains.buildServer.clouds.amazon.sns.trigger.service;
 
 import com.intellij.openapi.diagnostic.Logger;
+import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerException;
 import jetbrains.buildServer.buildTriggers.PolledBuildTrigger;
 import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
-import jetbrains.buildServer.serverSide.BuildCustomizer;
-import jetbrains.buildServer.serverSide.BuildPromotionEx;
-import jetbrains.buildServer.serverSide.BuildTypeEx;
-import jetbrains.buildServer.serverSide.TriggeredByBuilder;
+import jetbrains.buildServer.serverSide.*;
 import jetbrains.buildServer.serverSide.impl.BuildQueueImpl;
 import jetbrains.buildServer.util.TimeIntervalAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,7 +73,7 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
     final Logger contextLogger = context.getLogger();
 
     AwsSnsBuildTriggerState state = new AwsSnsBuildTriggerState(
-            context.getCustomDataStorage(),
+            context,
             myTriggeringContext.getObjectMapper(),
             contextLogger
     );
@@ -113,8 +112,15 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
   public void triggerActivated(@NotNull PolledTriggerContext context) throws BuildTriggerException {
     final Logger contextLogger = context.getLogger();
     contextLogger.info("Initializing the Amazon SNS trigger state");
+    CustomDataStorage cds = context.getCustomDataStorage();
+    CustomDataStorage tempStorageWithPossibleSubscription = getInBetweenActivationStorage(context);
+
+    if (tempStorageWithPossibleSubscription.getValues() != null) {
+      cds.putValues(tempStorageWithPossibleSubscription.getValues());
+    }
+
     AwsSnsBuildTriggerState state = new AwsSnsBuildTriggerState(
-            context.getCustomDataStorage(),
+            context,
             myTriggeringContext.getObjectMapper(),
             contextLogger
     );
@@ -122,10 +128,33 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
     myTimeIntervalAction.resetLastActionTime();
   }
 
+  @Override
+  public void triggerDeactivated(@NotNull PolledTriggerContext context) throws BuildTriggerException {
+    // cds will be destroyed with deactivation process
+    CustomDataStorage cds = context.getCustomDataStorage();
+    CustomDataStorage storage = getInBetweenActivationStorage(context);
+
+    // we need to store our subscription data for possible future activation
+    if (cds.getValues() != null) {
+      storage.putValues(cds.getValues());
+    }
+  }
+
+  @NotNull
+  private CustomDataStorage getInBetweenActivationStorage(@NotNull PolledTriggerContext context) {
+    BuildTriggerDescriptor trd = context.getTriggerDescriptor();
+    String subscriptionStorageId = trd.getBuildTriggerService().getClass().getName() + "_" + trd.getId() + "_sub";
+    return context.getBuildType().getCustomDataStorage(subscriptionStorageId);
+  }
+
   @Nullable
   @Override
   public Map<String, String> getTriggerStateProperties(@NotNull PolledTriggerContext context) {
-    return null;
+    final Map<String, String> properties = context.getTriggerDescriptor().getProperties();
+    Map<String, String> result = new HashMap<>(2);
+    result.put(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY));
+    result.put(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY, properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY));
+    return result;
   }
 
 }

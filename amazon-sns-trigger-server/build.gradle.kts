@@ -25,6 +25,12 @@ teamcity {
     server {
         descriptor = project.file("teamcity-plugin.xml")
         tokens = mapOf("Plugin_Version" to project.version)
+
+        files {
+            into("kotlin-dsl") {
+                from("../kotlin-dsl")
+            }
+        }
     }
 }
 

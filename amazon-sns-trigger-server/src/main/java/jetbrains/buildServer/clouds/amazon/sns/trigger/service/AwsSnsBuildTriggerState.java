@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.diagnostic.Logger;
+import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 import org.jetbrains.annotations.NotNull;
@@ -37,10 +38,10 @@ public class AwsSnsBuildTriggerState {
   private final ObjectMapper myObjectMapper;
   private final Logger myLogger;
 
-  public AwsSnsBuildTriggerState(@NotNull CustomDataStorage storage,
+  public AwsSnsBuildTriggerState(@NotNull PolledTriggerContext triggerContext,
                                  @NotNull ObjectMapper objectMapper,
                                  @NotNull Logger contextLogger) {
-    myStorage = storage;
+    myStorage = triggerContext.getCustomDataStorage();
     myObjectMapper = objectMapper;
     myLogger = contextLogger;
   }

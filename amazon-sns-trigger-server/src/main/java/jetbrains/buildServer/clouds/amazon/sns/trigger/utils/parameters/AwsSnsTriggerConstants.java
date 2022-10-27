@@ -16,6 +16,8 @@
 
 package jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,8 +34,8 @@ public final class AwsSnsTriggerConstants {
 
     // trigger properties keys
     public static final String TRIGGER_UUID_PROPERTY_KEY = "triggerUuid";
+    public static final String TRIGGER_NAME_PROPERTY_KEY = "displayName";
     public static final String TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY = "triggerBuildTypeExternalId";
-    public static final String TRIGGER_ENDPOINT_URL_PROPERTY_KEY = "triggerEndpointUrl";
 
     // SNS Notification body keys
     public static final String NOTIFICATION_MESSAGE_KEY = "Message";
@@ -92,4 +94,9 @@ public final class AwsSnsTriggerConstants {
             NOTIFICATION_TOPIC_ARN_KEY,
             MESSAGE_TYPE_KEY
     );
+
+    @NotNull
+    public static String getTriggerUrlPathPart() {
+        return AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL.replace("/**", "");
+    }
 }
