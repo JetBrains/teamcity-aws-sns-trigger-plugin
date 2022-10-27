@@ -29,8 +29,8 @@ import jetbrains.buildServer.util.TimeIntervalAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -151,10 +151,7 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
   @Override
   public Map<String, String> getTriggerStateProperties(@NotNull PolledTriggerContext context) {
     final Map<String, String> properties = context.getTriggerDescriptor().getProperties();
-    Map<String, String> result = new HashMap<>(2);
-    result.put(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY));
-    result.put(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY, properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY));
-    return result;
+    return Collections.singletonMap(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY, properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY));
   }
 
 }

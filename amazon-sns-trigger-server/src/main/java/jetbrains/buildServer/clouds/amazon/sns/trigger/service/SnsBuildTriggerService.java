@@ -28,7 +28,6 @@ import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTr
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
-import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
@@ -37,8 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.getCustomDataStorage;
 
 public class SnsBuildTriggerService extends BuildTriggerService {
   public static final String TRIGGER_NAME = "awsSnsTrigger";
@@ -79,7 +76,6 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     Map<String, String> properties = trigger.getProperties();
     String triggerId = properties.get(AwsSnsTriggerConstants.TRIGGER_UUID_PROPERTY_KEY);
     String triggerName = properties.get(AwsSnsTriggerConstants.TRIGGER_NAME_PROPERTY_KEY);
-    String btExternalId = properties.get(AwsSnsTriggerConstants.TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY);
 
     if (Strings.isBlank(triggerName)) {
       triggerName = triggerId;
@@ -88,69 +84,8 @@ public class SnsBuildTriggerService extends BuildTriggerService {
     sb.append("Display Name: ").append(triggerName);
     sb.append(System.lineSeparator());
     sb.append("Amazon SNS Trigger ID: ").append(triggerId);
-    sb.append(System.lineSeparator());
-
-    SBuildType buildType = myTriggeringContext.getProjectManager().findBuildTypeByExternalId(btExternalId);
-    if (buildType != null) {
-      sb.append("Trigger URL: ")
-              .append(System.lineSeparator())
-              .append(buildTriggerUrl(triggerId, buildType));
-
-      CustomDataStorage cds = getCustomDataStorage(buildType, trigger);
-      String topicArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN);
-      String topicSubscriptionArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
-      String topicUnsubscriptionUrl = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL);
-
-      if (topicArn != null) {
-        sb.append(System.lineSeparator())
-                .append("Topic ARN:")
-                .append(System.lineSeparator())
-                .append(topicArn);
-      }
-
-      if (topicSubscriptionArn != null) {
-        sb.append(System.lineSeparator())
-                .append("Subscription ARN:")
-                .append(System.lineSeparator())
-                .append(topicSubscriptionArn);
-      } else {
-        sb.append(System.lineSeparator()).append("Pending subscription...");
-      }
-
-      if (topicUnsubscriptionUrl != null) {
-        sb.append(System.lineSeparator())
-                .append("Unsubscription URL:")
-                .append(System.lineSeparator())
-                .append(topicUnsubscriptionUrl);
-      }
-    } else {
-      sb.append("Post-configuration is required.");
-    }
 
     return sb.toString();
-  }
-
-  private String buildTriggerUrl(String triggerId, SBuildType buildType) {
-    StringBuilder result = new StringBuilder();
-    String rootUrl = getRootUrl();
-    String triggerUrlPathPart = AwsSnsTriggerConstants.getTriggerUrlPathPart();
-    String projectExternalId = buildType.getProjectExternalId();
-    String btExternalId = buildType.getExternalId();
-
-    result.append(rootUrl)
-            .append(triggerUrlPathPart)
-            .append("/")
-            .append(projectExternalId)
-            .append("/")
-            .append(btExternalId)
-            .append("/")
-            .append(triggerId);
-
-    return result.toString();
-  }
-
-  private String getRootUrl() {
-    return myTriggeringContext.getWebLinks().getRootUrlByProjectExternalId(null);
   }
 
   @Nullable

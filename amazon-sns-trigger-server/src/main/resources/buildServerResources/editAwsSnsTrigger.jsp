@@ -1,7 +1,15 @@
 <%@ include file="include.jsp" %>
+<%@ page import="jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor" %>
 <%@ page import="jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants" %>
+<%@ page import="jetbrains.buildServer.controllers.admin.projects.BuildTriggerInfo" %>
+<%@ page import="jetbrains.buildServer.serverSide.CustomDataStorage" %>
+<%@ page import="jetbrains.buildServer.serverSide.SBuildType" %>
+<%@ page import="jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl" %>
 <%@ page import="jetbrains.buildServer.web.util.WebUtil" %>
+<%@ page import="org.apache.logging.log4j.util.Strings" %>
 
+<jsp:useBean id="triggerDescriptorBean"
+             type="jetbrains.buildServer.controllers.admin.projects.BuildTriggerDescriptorBean" scope="request"/>
 <jsp:useBean id="propertiesBean" type="jetbrains.buildServer.controllers.BasePropertiesBean" scope="request"/>
 <jsp:useBean id="buildForm" type="jetbrains.buildServer.controllers.admin.projects.EditableBuildTypeSettingsForm"
              scope="request"/>
@@ -63,9 +71,54 @@
             </bs:copy2ClipboardLink>
         </td>
     </tr>
-    <span class="error" id="error_triggerBuildTypeExternalId"></span>
 
-    <props:hiddenProperty name="triggerBuildTypeExternalId" value="${currentBuildTypeExternalId}"/>
+    <%
+        String topicArn = null;
+        String topicSubscriptionArn = null;
+        String topicUnsubscriptionUrl = null;
+
+        BuildTriggerInfo triggerInfo = triggerDescriptorBean.getSelectedTrigger();
+
+        if (triggerInfo != null) {
+            BuildTriggerDescriptor triggerDescriptor = triggerInfo.getOriginalTrigger();
+            SBuildType buildType = buildForm.getSettingsBuildType();
+
+            if (triggerDescriptor != null && buildType != null) {
+                CustomDataStorage cds = PolledTriggerContextImpl.getCustomDataStorage(buildType, triggerDescriptor);
+                topicArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN);
+                topicSubscriptionArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
+                topicUnsubscriptionUrl = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_UNSUBSCRIBE_URL);
+            }
+        }
+    %>
+
+    <c:if test="<%=triggerInfo != null%>">
+        <l:settingsGroup title="Subscription Info"/>
+        <c:choose>
+            <c:when test="<%=Strings.isBlank(topicSubscriptionArn)%>">
+                <tr>
+                    <td><label>Pending subscription...</label></td>
+                </tr>
+            </c:when>
+            <c:otherwise>
+                <tr>
+                    <td><label>Topic ARN:</label></td>
+                    <td><label style="word-break: break-all;"><%=topicArn%>
+                    </label></td>
+                </tr>
+                <tr>
+                    <td><label>Subscription ARN:</label></td>
+                    <td><label style="word-break: break-all;"><%=topicSubscriptionArn%>
+                    </label></td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="<%=topicUnsubscriptionUrl%>">Unsubscribe</a>
+                    </td>
+                </tr>
+            </c:otherwise>
+        </c:choose>
+    </c:if>
 
     <script type="text/javascript">
         const triggerNameField = jQuery('#displayName');

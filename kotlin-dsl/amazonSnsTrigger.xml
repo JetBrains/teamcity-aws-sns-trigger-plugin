@@ -25,11 +25,6 @@
                 Unique id of the trigger. Unique in the Build Configuration scope. Required for endpoint handler.
             </description>
         </param>
-        <param name="triggerBuildTypeExternalId" dslName="buildTypeId" mandatory="false" ref="BUILD_TYPE">
-            <description>
-                Reference to the current build type. Specify here id of the build type where this trigger is located.
-            </description>
-        </param>
     </params>
 
     <examples>

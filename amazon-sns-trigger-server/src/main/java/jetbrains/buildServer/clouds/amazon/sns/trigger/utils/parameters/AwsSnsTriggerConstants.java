@@ -35,7 +35,6 @@ public final class AwsSnsTriggerConstants {
     // trigger properties keys
     public static final String TRIGGER_UUID_PROPERTY_KEY = "triggerUuid";
     public static final String TRIGGER_NAME_PROPERTY_KEY = "displayName";
-    public static final String TRIGGER_BUILDTYPE_EXTERNAL_ID_PROPERTY_KEY = "triggerBuildTypeExternalId";
 
     // SNS Notification body keys
     public static final String NOTIFICATION_MESSAGE_KEY = "Message";
