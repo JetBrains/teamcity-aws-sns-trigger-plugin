@@ -7,6 +7,7 @@
 <%@ page import="jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl" %>
 <%@ page import="jetbrains.buildServer.web.util.WebUtil" %>
 <%@ page import="org.apache.logging.log4j.util.Strings" %>
+<%@ page import="java.util.Objects" %>
 
 <jsp:useBean id="triggerDescriptorBean"
              type="jetbrains.buildServer.controllers.admin.projects.BuildTriggerDescriptorBean" scope="request"/>
@@ -111,11 +112,13 @@
                     <td><label style="word-break: break-all;"><%=topicSubscriptionArn%>
                     </label></td>
                 </tr>
-                <tr>
-                    <td>
-                        <a href="<%=topicUnsubscriptionUrl%>">Unsubscribe</a>
-                    </td>
-                </tr>
+                <c:if test="<%=Objects.nonNull(topicUnsubscriptionUrl)%>">
+                    <tr>
+                        <td>
+                            <a href="<%=topicUnsubscriptionUrl%>">Unsubscribe</a>
+                        </td>
+                    </tr>
+                </c:if>
             </c:otherwise>
         </c:choose>
     </c:if>
@@ -128,7 +131,7 @@
         function updateUrl() {
             if (triggerIdField) {
                 const triggerId = triggerIdField.val();
-                const url = reference.text().strip().replace(/\/([\w\-]+)?$/, "/");
+                const url = reference.text().strip().replace(/\/([\w\-._]+)?$/, "/");
                 reference.text(url + triggerId);
             }
         }
