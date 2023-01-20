@@ -19,9 +19,11 @@ package jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public final class AwsSnsTriggerConstants {
+
     // controller specific properties
     public static final String SNS_CONNECTION_CONTROLLER_URL = "/app/trigger/sns/**";
     public static final String SNS_CONNECTION_CONTROLLER_URL_PATTERN = "/app/trigger/sns/(.*)/(.*)/(.*)$";
@@ -67,14 +69,11 @@ public final class AwsSnsTriggerConstants {
 
     // Custom parameters placeholders
     public static final String SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER = "sns.message.subject";
-    public static final String SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER_KEY = "sns_message_subject";
     public static final String SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER = "sns.message.body";
-    public static final String SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER_KEY = "sns_message_body";
     public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER = "sns.message.attributes.";
-    public static final String SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER_KEY_PREFIX = "sns_message_attributes_";
 
     // Key-collections for SNS message verification
-    public static final List<String> SUBSCRIPTION_CONFIRMATION_KEYS_LIST = Arrays.asList(
+    public static final List<String> SUBSCRIPTION_CONFIRMATION_KEYS_LIST = Collections.unmodifiableList(Arrays.asList(
             // same fields-set used for Unsubscription message validation
             NOTIFICATION_MESSAGE_KEY,
             NOTIFICATION_MESSAGE_ID_KEY,
@@ -83,16 +82,18 @@ public final class AwsSnsTriggerConstants {
             NOTIFICATION_TOKEN_KEY,
             NOTIFICATION_TOPIC_ARN_KEY,
             MESSAGE_TYPE_KEY
-    );
-
-    public static final List<String> NOTIFICATION_KEYS_LIST = Arrays.asList(
+    ));
+    public static final List<String> NOTIFICATION_KEYS_LIST = Collections.unmodifiableList(Arrays.asList(
             NOTIFICATION_MESSAGE_KEY,
             NOTIFICATION_MESSAGE_ID_KEY,
             NOTIFICATION_SUBJECT_KEY,
             NOTIFICATION_TIMESTAMP_KEY,
             NOTIFICATION_TOPIC_ARN_KEY,
             MESSAGE_TYPE_KEY
-    );
+    ));
+
+    private AwsSnsTriggerConstants() {
+    }
 
     @NotNull
     public static String getTriggerUrlPathPart() {
