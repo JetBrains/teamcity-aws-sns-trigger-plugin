@@ -78,6 +78,8 @@ class SnsBuildTriggeringPolicyTest {
         every { contextMock.buildType } returns buildTypeMock
         every { customDataStorageMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES) } returns "something"
         every { buildCustomizerMock.createPromotion() } returns buildPromotionMock
+        every { buildPromotionMock.customParameters = any() } returns Unit
+        every { buildPromotionMock.persist() } returns Unit
         every { buildTypeMock.addToQueue(buildPromotionMock, capture(slot)) } returns mockk()
         every { triggerContext.objectMapper } returns objectMapperMock
         every {

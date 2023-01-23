@@ -29,14 +29,11 @@ import jetbrains.buildServer.util.TimeIntervalAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
   public static final String DEFAULT_BRANCH = "";
-  private static final long TWO_MINUTES_IN_MS = 2 * 60 * 1000;
+  private static final long TWO_MINUTES_IN_MS = 2 * 60 * 1000L;
   private final AwsSnsTriggeringContext myTriggeringContext;
   private final TimeIntervalAction myTimeIntervalAction;
 
@@ -45,26 +42,31 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
     myTimeIntervalAction = new TimeIntervalAction(TWO_MINUTES_IN_MS);
   }
 
-  private static void customizeWithSnsMessageData(@NotNull SnsNotificationDto latestSnsMessage, @NotNull TriggeredByBuilder builder) {
+  private Map<String, String> customizeWithSnsMessageData(@NotNull SnsNotificationDto latestSnsMessage) {
+    Map<String, String> result = new HashMap<>();
     if (latestSnsMessage.getSubject() != null) {
-      builder.addParameter(AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER_KEY, latestSnsMessage.getSubject());
+      result.put(AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER, latestSnsMessage.getSubject());
     }
 
     if (latestSnsMessage.getMessage() != null) {
-      builder.addParameter(AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER_KEY, latestSnsMessage.getMessage());
+      result.put(AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER, latestSnsMessage.getMessage());
     }
 
     if (latestSnsMessage.getAttributes() != null) {
       latestSnsMessage.getAttributes().forEach((key, value) -> {
         String stringValue = (String) ((Map<String, Object>) value).get("Value");
-        builder.addParameter(AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER_KEY_PREFIX + key, stringValue);
+        result.put(AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER + key, stringValue);
       });
     }
+
+    return result;
   }
 
-  private BuildPromotionEx createBuildPromotion(PolledTriggerContext context) {
+  private BuildPromotionEx createBuildPromotion(PolledTriggerContext context, @NotNull SnsNotificationDto latestSnsMessage) {
     BuildCustomizer buildCustomizer = context.createBuildCustomizer(null);
     buildCustomizer.setDesiredBranchName(DEFAULT_BRANCH);
+    // put SNS data to build promotion custom parameters
+    buildCustomizer.addParametersIfAbsent(customizeWithSnsMessageData(latestSnsMessage));
     return (BuildPromotionEx) buildCustomizer.createPromotion();
   }
 
@@ -89,14 +91,12 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
     SnsNotificationDto latestSnsMessage = getLatest(registeredMessages);
     Set<String> registeredMessagesIds = registeredMessages.keySet();
 
-    BuildPromotionEx buildPromotion = createBuildPromotion(context);
+    BuildPromotionEx buildPromotion = createBuildPromotion(context, latestSnsMessage);
 
     TriggeredByBuilder builder = new TriggeredByBuilder();
     builder.addParameter(TriggeredByBuilder.TYPE_PARAM_NAME, "sns");
     builder.addParameter(TriggeredByBuilder.TRIGGER_ID_PARAM_NAME, context.getTriggerDescriptor().getId());
     builder.addParameter(BuildQueueImpl.TRIGGERED_BY_QUEUE_OPTIMIZATION_ENABLED_PARAM, "false");
-    // put SNS data to the triggered by properties
-    customizeWithSnsMessageData(latestSnsMessage, builder);
 
     ((BuildTypeEx) context.getBuildType()).addToQueue(buildPromotion, builder.toString());
 

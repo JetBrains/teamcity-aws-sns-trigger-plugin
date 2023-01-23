@@ -29,56 +29,52 @@ import java.util.Map;
 
 public class SnsMessageParametersCustomisationService implements BuildParametersProvider {
 
-    public SnsMessageParametersCustomisationService(@NotNull final ExtensionHolder extensionHolder) {
-        extensionHolder.registerExtension(BuildParametersProvider.class, getClass().getName(), this);
+  public SnsMessageParametersCustomisationService(@NotNull final ExtensionHolder extensionHolder) {
+    extensionHolder.registerExtension(BuildParametersProvider.class, getClass().getName(), this);
+  }
+
+  @NotNull
+  @Override
+  public Map<String, String> getParameters(@NotNull SBuild build, boolean emulationMode) {
+    final Map<String, String> customParameters = build.getBuildOwnParameters();
+    Map<String, String> result = new HashMap<>();
+
+    if (customParameters.containsKey(AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER) ||
+            emulationMode) {
+      result.put(AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER,
+              getStringValue(customParameters,
+                      AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER));
     }
 
-    @NotNull
-    @Override
-    public Map<String, String> getParameters(@NotNull SBuild build, boolean emulationMode) {
-        final Map<String, String> triggeredByParams = build.getTriggeredBy().getParameters();
-        return new HashMap<String, String>() {{
-            if (triggeredByParams.containsKey(AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER_KEY) || emulationMode) {
-                put(AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER,
-                        getStringValue(triggeredByParams, AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER_KEY));
-            }
-
-            if (triggeredByParams.containsKey(AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER_KEY) || emulationMode) {
-                put(AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER,
-                        getStringValue(triggeredByParams, AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER_KEY));
-            }
-
-            // SNS message attributes
-            triggeredByParams.keySet().stream()
-                    .filter(it -> it.startsWith(AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER_KEY_PREFIX))
-                    .forEach(key -> {
-                        String value = getStringValue(triggeredByParams, key);
-                        String newKey = key.replace(
-                                AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER_KEY_PREFIX,
-                                AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER
-                        );
-                        put(newKey, value);
-                    });
-        }};
+    if (customParameters.containsKey(AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER) ||
+            emulationMode) {
+      result.put(AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER,
+              getStringValue(customParameters,
+                      AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER));
     }
 
-    private String getStringValue(@NotNull Map<String, String> params, @NotNull String key) {
-        String value = params.get(key);
+    // SNS message attributes
+    customParameters.keySet().stream()
+            .filter(it -> it.startsWith(
+                    AwsSnsTriggerConstants.SNS_MESSAGE_ATTRIBUTES_PARAMETER_PLACEHOLDER))
+            .forEach(key -> {
+              String value = getStringValue(customParameters, key);
+              result.put(key, value);
+            });
+    return result;
+  }
 
-        if (value == null) {
-            return "???";
-        }
+  private String getStringValue(@NotNull Map<String, String> params, @NotNull String key) {
+    return params.getOrDefault(key, "???");
+  }
 
-        return value;
-    }
-
-    @NotNull
-    @Override
-    public Collection<String> getParametersAvailableOnAgent(@NotNull SBuild build) {
-        return Arrays.asList(
-                AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER,
-                AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER
-        );
-    }
+  @NotNull
+  @Override
+  public Collection<String> getParametersAvailableOnAgent(@NotNull SBuild build) {
+    return Arrays.asList(
+      AwsSnsTriggerConstants.SNS_MESSAGE_SUBJECT_PARAMETER_PLACEHOLDER,
+      AwsSnsTriggerConstants.SNS_MESSAGE_BODY_PARAMETER_PLACEHOLDER
+    );
+  }
 
 }
