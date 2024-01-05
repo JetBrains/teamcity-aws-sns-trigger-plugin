@@ -48,7 +48,6 @@ allprojects {
     repositories {
         mavenLocal()
         maven { url = URI("https://download.jetbrains.com/teamcity-repository") }
-        maven { url = URI("https://repository.jetbrains.com/all") }
         mavenCentral()
         google()
     }

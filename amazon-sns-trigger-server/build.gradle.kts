@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id("com.github.rodm.teamcity-server") version "1.4.1"
+    id("com.github.rodm.teamcity-server") version "1.5.2"
 }
 
 val teamcityVersion = ext.get("teamcityVersion")!! as String
