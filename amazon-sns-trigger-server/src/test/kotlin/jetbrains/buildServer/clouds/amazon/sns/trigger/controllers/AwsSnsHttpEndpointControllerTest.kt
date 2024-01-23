@@ -15,7 +15,10 @@ import jetbrains.buildServer.serverSide.CustomDataStorage
 import jetbrains.buildServer.serverSide.ProjectManager
 import jetbrains.buildServer.serverSide.SBuildType
 import jetbrains.buildServer.serverSide.SProject
+import jetbrains.buildServer.serverSide.SecurityContextEx
+import jetbrains.buildServer.serverSide.ServerResponsibilityImpl
 import jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl
+import jetbrains.buildServer.serverSide.impl.auth.SecurityContextImpl
 import jetbrains.buildServer.web.openapi.WebControllerManager
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -52,7 +55,8 @@ class AwsSnsHttpEndpointControllerTest {
                 wcmMock,
                 pmMock,
                 saMock,
-                aiMock
+                aiMock,
+                SecurityContextImpl(ServerResponsibilityImpl())
             )
 
         val reqMock = mockk<HttpServletRequest>(relaxed = true)

@@ -33,16 +33,19 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
   private final Pattern pathPattern = Pattern.compile(AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL_PATTERN);
   private final ProjectManager myProjectManager;
   private final HttpApi myServerApi;
+  private final SecurityContextEx mySecurityContext;
 
   public AwsSnsHttpEndpointController(@NotNull SBuildServer server,
                                       @NotNull final WebControllerManager webControllerManager,
                                       @NotNull final ProjectManager projectManager,
                                       @NotNull final HttpApi serverApi,
-                                      @NotNull final AuthorizationInterceptor authInterceptor
+                                      @NotNull final AuthorizationInterceptor authInterceptor,
+                                      @NotNull final SecurityContextEx securityContext
   ) {
     super(server);
     myProjectManager = projectManager;
     myServerApi = serverApi;
+    mySecurityContext = securityContext;
     webControllerManager.registerController(PATH, this);
     authInterceptor.addPathNotRequiringAuth(PATH);
   }
@@ -75,15 +78,15 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
         throw new AwsSnsHttpEndpointException("No Trigger UUID given in the path");
       }
 
-      projectId = projectId.trim();
+      String finalProjectId = projectId.trim();
       final String finalBuildTypeId = buildTypeId.trim();
 
-      SProject project = myProjectManager.findProjectByExternalId(projectId);
+      SProject project = mySecurityContext.runAsSystemUnchecked(() -> myProjectManager.findProjectByExternalId(finalProjectId));
       if (project == null) {
-        throw new AwsSnsHttpEndpointException("Couldn't find the project with id: " + projectId);
+        throw new AwsSnsHttpEndpointException("Couldn't find the project with id: " + finalProjectId);
       }
 
-      SBuildType buildType = project.findBuildTypeByExternalId(finalBuildTypeId);
+      SBuildType buildType = mySecurityContext.runAsSystemUnchecked(() -> project.findBuildTypeByExternalId(finalBuildTypeId));
       if (buildType == null) {
         throw new AwsSnsHttpEndpointException("Couldn't find build type with id: " + finalBuildTypeId);
       }
