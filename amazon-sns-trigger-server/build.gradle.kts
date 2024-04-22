@@ -1,13 +1,15 @@
 
 
 plugins {
-    id("com.github.rodm.teamcity-server") version "1.5.2"
+    id("io.github.rodm.teamcity-server") version "1.5.2"
 }
 
 val teamcityVersion = ext.get("teamcityVersion")!! as String
 
 teamcity {
     version = teamcityVersion
+    allowSnapshotVersions = true
+
     server {
         descriptor = project.file("teamcity-plugin.xml")
         tokens = mapOf("Plugin_Version" to project.version)

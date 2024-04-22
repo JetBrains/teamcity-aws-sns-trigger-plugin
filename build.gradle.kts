@@ -3,10 +3,15 @@
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
+import java.io.FileInputStream
+import java.nio.file.Path
+import java.nio.file.Paths
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.7.10"
 }
+
+initializeWorkspace()
 
 val correctVersion = project.hasProperty("versionNumber") && "\\d+\\.\\d+\\.\\d+.*".toRegex()
     .matches(property("versionNumber") as CharSequence)
@@ -18,7 +23,8 @@ val projectIds =
         "version" to versionNumber,
         "artifact" to "amazon-sns-trigger"
     )
-val teamcityVersion = if (project.hasProperty("teamcityVersion")) property("teamcityVersion") else "2022.08"
+val teamcityVersion = anyParam("teamcityVersion") ?: "2022.08"
+val localRepo = anyParamPath("TC_LOCAL_REPO")
 
 allprojects {
     group = projectIds["group"]!!
@@ -34,6 +40,9 @@ allprojects {
     repositories {
         mavenLocal()
         maven { url = URI("https://download.jetbrains.com/teamcity-repository") }
+        if (localRepo != null) {
+            maven(url = "file:///${localRepo}")
+        }
         mavenCentral()
         google()
     }
@@ -51,6 +60,53 @@ subprojects {
         jar {
             archiveVersion.convention(null as String?)
             archiveVersion.set(null as String?)
+        }
+    }
+}
+
+fun anyParamPath(vararg names: String): Path? {
+    val param = anyParam(*names)
+    if (param == null || param.isEmpty())
+        return null
+    return if (Paths.get(param).isAbsolute()) {
+        Paths.get(param)
+    } else {
+        getRootDir().toPath().resolve(param)
+    }
+}
+
+fun anyParam(vararg names: String): String? {
+    var param: String? = ""
+    try {
+        for(name in names) {
+            param = if (project.hasProperty(name)) {
+                project.property(name).toString()
+            } else {
+                System.getProperty(name) ?: System.getenv(name) ?: null
+            }
+            if (param != null)
+                break;
+        }
+        if (param == null || param.isEmpty())
+            param = null
+    } finally {
+        println("AnyParam: ${names.joinToString(separator = ",")} -> $param")
+    }
+    return param
+}
+
+
+fun initializeWorkspace() {
+    if (System.getProperty("idea.active") != null) {
+        println("Attempt to configure workspace in IDEA")
+        val coreVersionProperties = project.projectDir.toPath().parent.parent.resolve(".version.properties")
+        if (coreVersionProperties.toFile().exists()) {
+            val p = Properties().also {
+                it.load(FileInputStream(coreVersionProperties.toFile()))
+            }
+            p.forEach {(k,v) ->
+                System.setProperty(k.toString(), v.toString());
+            }
         }
     }
 }
