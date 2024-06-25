@@ -3,7 +3,7 @@ package jetbrains.buildServer.clouds.amazon.sns.trigger.service;
 import jetbrains.buildServer.log.Loggers;
 import jetbrains.buildServer.serverSide.parameters.AbstractParameterDescriptionProvider;
 import jetbrains.buildServer.util.FileUtil;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;

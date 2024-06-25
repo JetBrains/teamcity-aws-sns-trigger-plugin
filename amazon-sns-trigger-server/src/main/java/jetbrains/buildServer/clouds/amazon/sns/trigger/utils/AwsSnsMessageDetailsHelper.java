@@ -7,8 +7,8 @@ import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.http.HttpApi;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
