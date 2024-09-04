@@ -8,7 +8,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.7.10"
+    id("org.jetbrains.kotlin.jvm") version "1.9.22"
 }
 
 initializeWorkspace()
