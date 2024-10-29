@@ -2,16 +2,10 @@ package jetbrains.buildServer.clouds.amazon.sns.trigger.service
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.mockk.confirmVerified
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.spyk
-import io.mockk.verify
-import io.mockk.verifyOrder
 import jetbrains.buildServer.buildTriggers.PolledTriggerContext
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants
@@ -95,7 +89,8 @@ class SnsBuildTriggeringPolicyTest {
         verify(exactly = 1) { customDataStorageMock.refresh() }
         verify(exactly = 3) { customDataStorageMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES) }
         verify(exactly = 1) { customDataStorageMock.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, null) }
-        verify(exactly = 1) { customDataStorageMock.flush() }
+        verify(exactly = 2) { customDataStorageMock.flush(any()) }
+        verify(exactly = 3) { customDataStorageMock.values }
         confirmVerified(customDataStorageMock)
     }
 
@@ -110,6 +105,8 @@ class SnsBuildTriggeringPolicyTest {
             customDataStorageMock.putValues(any())
             customDataStorageMock.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES, null)
         }
+        verify { customDataStorageMock.flush(any()) }
+        verify { customDataStorageMock.values }
         confirmVerified(customDataStorageMock)
     }
 }
