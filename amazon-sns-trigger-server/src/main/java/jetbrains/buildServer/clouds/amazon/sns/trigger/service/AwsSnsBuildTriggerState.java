@@ -6,28 +6,27 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.diagnostic.Logger;
-import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
-import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
-import jetbrains.buildServer.serverSide.CustomDataStorage;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.CustomDataStorageWrapper;
+import org.jetbrains.annotations.NotNull;
 
 import static jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES;
 
 public class AwsSnsBuildTriggerState {
 
-  private final CustomDataStorage myStorage;
+  private final CustomDataStorageWrapper myStorage;
   private final ObjectMapper myObjectMapper;
   private final Logger myLogger;
 
   public AwsSnsBuildTriggerState(@NotNull PolledTriggerContext triggerContext,
                                  @NotNull ObjectMapper objectMapper,
                                  @NotNull Logger contextLogger) {
-    myStorage = triggerContext.getCustomDataStorage();
+    myStorage = new CustomDataStorageWrapper(triggerContext.getCustomDataStorage());
     myObjectMapper = objectMapper;
     myLogger = contextLogger;
   }

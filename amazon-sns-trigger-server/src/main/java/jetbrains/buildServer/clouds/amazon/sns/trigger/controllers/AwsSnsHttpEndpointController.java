@@ -2,12 +2,14 @@
 
 package jetbrains.buildServer.clouds.amazon.sns.trigger.controllers;
 
+import com.intellij.openapi.diagnostic.Logger;
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerService;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.errors.AwsSnsHttpEndpointException;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.service.SnsBuildTriggerService;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.AwsSnsMessageDetailsHelper;
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.CustomDataStorageWrapper;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.controllers.ActionErrors;
 import jetbrains.buildServer.controllers.AuthorizationInterceptor;
@@ -29,6 +31,7 @@ import static jetbrains.buildServer.clouds.amazon.sns.trigger.service.SnsBuildTr
 import static jetbrains.buildServer.serverSide.impl.PolledTriggerContextImpl.getCustomDataStorage;
 
 public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
+  private static final Logger LOG = Logger.getInstance(AwsSnsHttpEndpointController.class);
   public static final String PATH = AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL;
   private final Pattern pathPattern = Pattern.compile(AwsSnsTriggerConstants.SNS_CONNECTION_CONTROLLER_URL_PATTERN);
   private final ProjectManager myProjectManager;
@@ -47,7 +50,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
     myServerApi = serverApi;
     mySecurityContext = securityContext;
     webControllerManager.registerController(PATH, this);
-    authInterceptor.addPathNotRequiringAuth(PATH);
+    authInterceptor.addPathNotRequiringAuth(getClass(), PATH);
   }
 
   @Nullable
@@ -106,6 +109,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
       }
       // otherwise just ignore this message
     } catch (Exception error) {
+      LOG.warnAndDebugDetails("Error while processing SNS Endpoint request", error);
       errors.addError("error_snsEndpointResolve", error.getMessage());
       writeErrorsAsJson(errors, response);
     }
@@ -119,7 +123,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
           @NotNull final SBuildType buildType,
           @NotNull final BuildTriggerDescriptor buildTrigger
   ) throws AwsSnsHttpEndpointException {
-    CustomDataStorage cds = getCustomDataStorage(buildType, buildTrigger);
+    CustomDataStorageWrapper cds = new CustomDataStorageWrapper(getCustomDataStorage(buildType, buildTrigger));
     HashMap<String, Object> payload = readJson(request);
 
     if (payload != null && AwsSnsMessageDetailsHelper.isValidSignature(payload, myServerApi)) {
@@ -135,7 +139,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
 
   private void handleSubscription(
           @NotNull String currentTopicArn,
-          @NotNull CustomDataStorage cds,
+          @NotNull CustomDataStorageWrapper cds,
           @NotNull final Map<String, Object> payload
   ) throws AwsSnsHttpEndpointException {
     String arn = AwsSnsMessageDetailsHelper.subscribe(payload, myServerApi);
@@ -145,7 +149,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
 
   private void handleNotification(
           @NotNull BuildTriggerDescriptor buildTrigger,
-          @NotNull CustomDataStorage cds,
+          @NotNull CustomDataStorageWrapper cds,
           @NotNull SnsNotificationDto dto
   ) throws AwsSnsHttpEndpointException {
     String expectedArn = cds.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN);
@@ -165,7 +169,7 @@ public class AwsSnsHttpEndpointController extends BaseAwsConnectionController {
     }
   }
 
-  private void handleUnsubscribe(@NotNull CustomDataStorage cds) {
+  private void handleUnsubscribe(@NotNull CustomDataStorageWrapper cds) {
     // cleanup
     cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_SUBSCRIPTION_ARN, null);
     cds.putValue(AwsSnsTriggerConstants.TRIGGER_STORE_CURRENT_TOPIC_ARN, null);

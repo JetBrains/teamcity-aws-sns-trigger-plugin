@@ -24,6 +24,8 @@ teamcity {
 
 dependencies {
     provided("org.jetbrains.teamcity.internal:server:$teamcityVersion")
+    provided("org.jetbrains.teamcity:server-openapi:$teamcityVersion")
+    provided("org.jetbrains.teamcity:server-core:$teamcityVersion")
 
     testImplementation(kotlin("stdlib"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")

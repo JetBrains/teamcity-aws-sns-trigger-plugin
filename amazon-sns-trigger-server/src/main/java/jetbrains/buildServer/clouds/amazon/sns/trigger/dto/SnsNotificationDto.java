@@ -2,6 +2,7 @@
 
 package jetbrains.buildServer.clouds.amazon.sns.trigger.dto;
 
+import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,5 +110,21 @@ public class SnsNotificationDto {
 
   public void setUnsubscribeUrl(String unsubscribeUrl) {
     myUnsubscribeUrl = unsubscribeUrl;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    SnsNotificationDto that = (SnsNotificationDto)o;
+    return Objects.equals(myUnsubscribeUrl, that.myUnsubscribeUrl) && Objects.equals(myMessageId, that.myMessageId) &&
+           Objects.equals(mySubscriptionArn, that.mySubscriptionArn) && Objects.equals(mySubject, that.mySubject) &&
+           Objects.equals(myMessage, that.myMessage) && Objects.equals(myTimestamp, that.myTimestamp) &&
+           Objects.equals(myAttributes, that.myAttributes) && Objects.equals(myTopic, that.myTopic);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(myUnsubscribeUrl, myMessageId, mySubscriptionArn, mySubject, myMessage, myTimestamp, myAttributes, myTopic);
   }
 }

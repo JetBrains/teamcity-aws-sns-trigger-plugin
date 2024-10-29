@@ -10,6 +10,7 @@ import io.mockk.mockkStatic
 import io.mockk.verifyOrder
 import jetbrains.buildServer.ExtensionHolder
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto
+import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.CustomDataStorageWrapper
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants
 import jetbrains.buildServer.serverSide.CustomDataStorage
 import jetbrains.buildServer.serverSide.ProjectManager
@@ -71,7 +72,7 @@ class SnsBuildTriggerServiceTest {
     fun registerMessage() {
         val dto = SnsNotificationDto()
             .apply { messageId = "some-id" }
-        val cdsMock = mockk<CustomDataStorage>(relaxed = true)
+        val cdsMock = mockk<CustomDataStorageWrapper>(relaxed = true)
 
         every { cdsMock.getValue(AwsSnsTriggerConstants.TRIGGER_STORE_MESSAGES) } returns null
 
