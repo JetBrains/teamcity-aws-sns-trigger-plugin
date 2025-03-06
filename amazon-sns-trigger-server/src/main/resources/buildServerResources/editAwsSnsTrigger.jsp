@@ -124,21 +124,23 @@
     </c:if>
 
     <script type="text/javascript">
-        const triggerNameField = jQuery('#displayName');
-        const triggerIdField = jQuery('#triggerUuid');
-        const reference = jQuery('a.copy2Clipboard');
+        {
+            const triggerNameField = jQuery('#displayName');
+            const triggerIdField = jQuery('#triggerUuid');
+            const reference = jQuery('a.copy2Clipboard');
 
-        function updateUrl() {
-            if (triggerIdField) {
-                const triggerId = triggerIdField.val();
-                const url = reference.text().strip().replace(/\/([\w\-._]+)?$/, "/");
-                reference.text(url + triggerId);
+            function updateUrl() {
+                if (triggerIdField) {
+                    const triggerId = triggerIdField.val();
+                    const url = reference.text().strip().replace(/\/([\w\-._]+)?$/, "/");
+                    reference.text(url + triggerId);
+                }
             }
+
+            if (triggerNameField) triggerNameField.on('keydown', () => setTimeout(updateUrl, 200));
+            if (triggerIdField) triggerIdField.on('keydown', () => setTimeout(updateUrl, 200));
+
+            setTimeout(updateUrl, 200)
         }
-
-        if (triggerNameField) triggerNameField.on('keydown', () => setTimeout(updateUrl, 200));
-        if (triggerIdField) triggerIdField.on('keydown', () => setTimeout(updateUrl, 200));
-
-        setTimeout(updateUrl, 200)
     </script>
 </c:if>
