@@ -3,7 +3,6 @@
 package jetbrains.buildServer.clouds.amazon.sns.trigger.service;
 
 import com.intellij.openapi.diagnostic.Logger;
-import java.util.*;
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerException;
 import jetbrains.buildServer.buildTriggers.PolledBuildTrigger;
@@ -19,6 +18,10 @@ import jetbrains.buildServer.serverSide.impl.BuildQueueImpl;
 import jetbrains.buildServer.util.TimeIntervalAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
   public static final String DEFAULT_BRANCH = "";
@@ -79,24 +82,19 @@ public class SnsBuildTriggeringPolicy extends PolledBuildTrigger {
     }
 
     Map<String, SnsNotificationDto> registeredMessages = state.getRegisteredMessages();
-    SnsNotificationDto latestSnsMessage = getLatest(registeredMessages);
-    Set<String> registeredMessagesIds = registeredMessages.keySet();
 
-    BuildPromotionEx buildPromotion = createBuildPromotion(context, latestSnsMessage);
+    for (SnsNotificationDto snsMessage : registeredMessages.values()) {
+      BuildPromotionEx buildPromotion = createBuildPromotion(context, snsMessage);
 
-    TriggeredByBuilder builder = new TriggeredByBuilder();
-    builder.addParameter(TriggeredByBuilder.TYPE_PARAM_NAME, "sns");
-    builder.addParameter(TriggeredByBuilder.TRIGGER_ID_PARAM_NAME, context.getTriggerDescriptor().getId());
-    builder.addParameter(BuildQueueImpl.TRIGGERED_BY_QUEUE_OPTIMIZATION_ENABLED_PARAM, "false");
+      TriggeredByBuilder builder = new TriggeredByBuilder();
+      builder.addParameter(TriggeredByBuilder.TYPE_PARAM_NAME, "sns");
+      builder.addParameter(TriggeredByBuilder.TRIGGER_ID_PARAM_NAME, context.getTriggerDescriptor().getId());
+      builder.addParameter(BuildQueueImpl.TRIGGERED_BY_QUEUE_OPTIMIZATION_ENABLED_PARAM, "false");
 
-    ((BuildTypeEx) context.getBuildType()).addToQueue(buildPromotion, builder.toString());
+      ((BuildTypeEx) context.getBuildType()).addToQueue(buildPromotion, builder.toString());
+    }
 
-    state.persist(registeredMessagesIds);
-  }
-
-  private SnsNotificationDto getLatest(Map<String, SnsNotificationDto> registeredMessages) {
-    return registeredMessages.values().stream().max(Comparator.comparing(SnsNotificationDto::getTimestamp))
-            .orElseThrow(() -> new IllegalStateException("Comparator returned null for list of messages. This should never happen"));
+    state.persist(registeredMessages.keySet());
   }
 
   @Override
