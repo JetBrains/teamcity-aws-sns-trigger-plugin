@@ -7,13 +7,14 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.intellij.openapi.diagnostic.Logger;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.dto.SnsNotificationDto;
 import jetbrains.buildServer.clouds.amazon.sns.trigger.utils.parameters.AwsSnsTriggerConstants;
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomDataStorageWrapper {
   private static final Logger LOG = Logger.getInstance(CustomDataStorageWrapper.class);
@@ -158,7 +159,7 @@ public class CustomDataStorageWrapper {
 
         // Merge messages
         Map<String, SnsNotificationDto> mergedMessages = safeGetMessagesMap(storageValue);
-        deletedKeys.forEach(it -> mergedMessages.remove(it));
+        deletedKeys.forEach(mergedMessages::remove);
         addedKeys.forEach(it -> mergedMessages.put(it, localMessages.get(it)));
 
         if (mergedMessages.isEmpty()) {
