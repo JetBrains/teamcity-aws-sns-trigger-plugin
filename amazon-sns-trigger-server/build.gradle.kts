@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 
 plugins {
-    id("io.github.rodm.teamcity-server") version "1.5.2"
+    id("io.github.rodm.teamcity-server") version "1.5.6"
 }
 
 val teamcityVersion = ext.get("teamcityVersion")!! as String
@@ -39,15 +40,6 @@ tasks {
         archiveVersion.convention(null as String?)
         archiveVersion.set(null as String?)
         archiveBaseName.convention(projectIds["artifact"])
-        archiveBaseName.set(projectIds["artifact"])
-    }
-    compileKotlin {
-        java {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
-        }
-        kotlinOptions {
-            jvmTarget = "1.8"
-        }
+        archiveFileName.set(projectIds["artifact"] + ".zip")
     }
 }

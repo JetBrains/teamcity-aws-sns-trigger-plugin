@@ -1,5 +1,6 @@
 
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
@@ -8,10 +9,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.22"
+    id("org.jetbrains.kotlin.jvm") version "2.0.21"
 }
 
 initializeWorkspace()
+
+val javaVersionVal = JavaVersion.VERSION_11
+val jvmTargetVal = JvmTarget.JVM_11
 
 val correctVersion = project.hasProperty("versionNumber") && "\\d+\\.\\d+\\.\\d+.*".toRegex()
     .matches(property("versionNumber") as CharSequence)
@@ -61,6 +65,17 @@ subprojects {
             archiveVersion.convention(null as String?)
             archiveVersion.set(null as String?)
         }
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        compilerOptions {
+            jvmTarget.set(jvmTargetVal)
+        }
+    }
+
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = javaVersionVal.toString()
+        targetCompatibility = javaVersionVal.toString()
     }
 }
 
