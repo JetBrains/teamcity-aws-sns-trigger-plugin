@@ -29,8 +29,11 @@ dependencies {
     provided("org.jetbrains.teamcity:server-core:$teamcityVersion")
 
     testImplementation(kotlin("stdlib"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testImplementation("io.mockk:mockk:1.12.7")
+
+    testImplementation(platform("org.junit:junit-bom:5.9.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.mockk:mockk:1.13.16")
 }
 
 val projectIds = ext.get("projectIds")!! as Map<String, String>
@@ -41,5 +44,9 @@ tasks {
         archiveVersion.set(null as String?)
         archiveBaseName.convention(projectIds["artifact"])
         archiveFileName.set(projectIds["artifact"] + ".zip")
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
